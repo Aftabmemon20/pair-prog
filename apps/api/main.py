@@ -11,7 +11,7 @@ from apps.api.config import settings
 from apps.api.logger import setup_logging, get_logger, request_id_ctx
 from apps.api.services.db import check_db_health
 from apps.api.services.yjs_manager import yjs_manager
-from apps.api.routers import rooms, symbols, agent, ownership, recap
+from apps.api.routers import rooms, symbols, agent, ownership, recap, livekit
 
 setup_logging()
 logger = get_logger("api.server")
@@ -108,6 +108,7 @@ app.include_router(symbols.router)
 app.include_router(agent.router)
 app.include_router(ownership.router)
 app.include_router(recap.router)
+app.include_router(livekit.router)
 
 
 @app.websocket("/yjs/{room_id}")

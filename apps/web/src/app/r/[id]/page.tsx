@@ -11,6 +11,7 @@ import { TimelinePanel } from "@/components/TimelinePanel";
 import { DrawingCanvas } from "@/components/DrawingCanvas";
 import { VoiceButton } from "@/components/VoiceButton";
 import { RecapModal } from "@/components/RecapModal";
+import { CallBar } from "@/components/CallBar";
 import { useRoomStore } from "@/store/roomStore";
 import { pyodideRunner, RunResult } from "@/lib/pyodideRunner";
 
@@ -370,6 +371,9 @@ export default function RoomPage() {
           onClearPendingPrompt={() => setPendingAgentPrompt(null)}
         />
       </div>
+
+      {/* Floating WebRTC Zoom-style Call Bar */}
+      <CallBar roomId={roomId} />
     </div>
   );
 }
