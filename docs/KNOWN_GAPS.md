@@ -23,4 +23,7 @@ This document tracks known omissions, planned architectural evolutions, and stub
   - Prototype hard-caps at 2 human participants + 1 AI agent per room.
 
 ## 3. Active Stubs
-- *None currently in Phase P0.* All upcoming stubs will be prefixed with `STUB:` and registered here before implementation.
+- **STUB: Voice Push-to-Talk via Groq Whisper Turbo**: LiveKit audio stream capture to server-side `/stt` endpoint is planned for Phase P5.
+- **STUB: Interactive Mermaid Diagram Rendering**: The `show_diagram` tool is validated in P3; direct rendering of Mermaid charts into a visual canvas panel is slated for Phase P4.
+- **STUB: "Split Work" Code Ownership Assignment**: AST parsing is functional; interactive ownership toggling and visual border coloring in Monaco are slated for Phase P4.
+

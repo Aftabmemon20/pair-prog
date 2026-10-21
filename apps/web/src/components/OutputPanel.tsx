@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Terminal, AlertTriangle, CheckCircle, Clock, Trash2, ChevronUp, ChevronDown, Layers, Bug } from "lucide-react";
+import { Terminal, AlertTriangle, CheckCircle, Clock, Trash2, ChevronUp, ChevronDown, Layers, Bug, Sparkles } from "lucide-react";
 import { RunResult } from "../lib/pyodideRunner";
 import { useRoomStore } from "../store/roomStore";
 
@@ -9,9 +9,10 @@ interface OutputPanelProps {
   runResult: RunResult | null;
   onClear: () => void;
   onSelectLine?: (line: number) => void;
+  onAskAgent?: (prompt: string) => void;
 }
 
-export function OutputPanel({ runResult, onClear, onSelectLine }: OutputPanelProps) {
+export function OutputPanel({ runResult, onClear, onSelectLine, onAskAgent }: OutputPanelProps) {
   const { roomId } = useRoomStore();
   const [activeTab, setActiveTab] = useState<"terminal" | "traceback" | "symbols">("terminal");
   const [collapsed, setCollapsed] = useState(false);
@@ -170,13 +171,29 @@ export function OutputPanel({ runResult, onClear, onSelectLine }: OutputPanelPro
             <div>
               {runResult?.traceback ? (
                 <div className="space-y-3">
-                  <div className="p-3 bg-rose-950/40 border border-rose-800/80 rounded-lg">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-rose-900/80 text-rose-200 mr-2">
-                      {runResult.traceback.error_type}
-                    </span>
-                    <span className="text-rose-300 font-semibold">
-                      {runResult.traceback.error_message}
-                    </span>
+                  <div className="p-3 bg-rose-950/40 border border-rose-800/80 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-rose-900/80 text-rose-200 mr-2">
+                        {runResult.traceback.error_type}
+                      </span>
+                      <span className="text-rose-300 font-semibold">
+                        {runResult.traceback.error_message}
+                      </span>
+                    </div>
+
+                    {onAskAgent && (
+                      <button
+                        onClick={() =>
+                          onAskAgent(
+                            `Explain why this code failed with ${runResult.traceback?.error_type}: ${runResult.traceback?.error_message} at line ${runResult.traceback?.top_frame?.line || "?"}.`
+                          )
+                        }
+                        className="flex items-center gap-1.5 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-md shadow-sm transition shrink-0"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Ask Pair Master to Analyze</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="space-y-2">

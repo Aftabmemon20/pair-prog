@@ -7,6 +7,7 @@ import { PresenceBar } from "@/components/PresenceBar";
 import { JoinModal } from "@/components/JoinModal";
 import { CollaborativeEditor, EditorHandle } from "@/components/CollaborativeEditor";
 import { OutputPanel } from "@/components/OutputPanel";
+import { TimelinePanel } from "@/components/TimelinePanel";
 import { useRoomStore } from "@/store/roomStore";
 import { pyodideRunner, RunResult } from "@/lib/pyodideRunner";
 
@@ -19,6 +20,8 @@ export default function RoomPage() {
   const [pyodideStatus, setPyodideStatus] = useState<string>("uninitialized");
   const [isRunning, setIsRunning] = useState(false);
   const [runResult, setRunResult] = useState<RunResult | null>(null);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(true);
+  const [pendingAgentPrompt, setPendingAgentPrompt] = useState<string | null>(null);
 
   // Restore session if available
   useEffect(() => {
@@ -161,8 +164,21 @@ export default function RoomPage() {
           </div>
         </div>
 
-        {/* Right side facilitator button */}
+        {/* Right side facilitator button & timeline toggle */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsTimelineOpen(!isTimelineOpen)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition ${
+              isTimelineOpen
+                ? "bg-purple-900/60 border-purple-700/80 text-purple-200 shadow-sm"
+                : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800"
+            }`}
+            title="Toggle Pair Master AI Facilitator Timeline"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">Pair Master</span>
+          </button>
+
           <button
             disabled
             className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-purple-300/60 bg-purple-950/20 border border-purple-800/40 rounded-md cursor-not-allowed"
@@ -174,23 +190,39 @@ export default function RoomPage() {
         </div>
       </div>
 
-      {/* Main Workspace: Editor on top, Output Panel on bottom */}
-      <main className="flex-1 flex flex-col relative overflow-hidden">
-        <div className="flex-1 relative overflow-hidden">
-          <CollaborativeEditor
-            ref={editorRef}
-            roomId={roomId}
-            onRunShortcut={handleRun}
-          />
-        </div>
+      {/* Main Workspace + Timeline Split */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Editor on top, Output Panel on bottom */}
+        <main className="flex-1 flex flex-col relative overflow-hidden">
+          <div className="flex-1 relative overflow-hidden">
+            <CollaborativeEditor
+              ref={editorRef}
+              roomId={roomId}
+              onRunShortcut={handleRun}
+            />
+          </div>
 
-        {/* Output Diagnostics Panel */}
-        <OutputPanel
-          runResult={runResult}
-          onClear={() => setRunResult(null)}
+          {/* Output Diagnostics Panel */}
+          <OutputPanel
+            runResult={runResult}
+            onClear={() => setRunResult(null)}
+            onSelectLine={handleSelectLine}
+            onAskAgent={(prompt) => {
+              setIsTimelineOpen(true);
+              setPendingAgentPrompt(prompt);
+            }}
+          />
+        </main>
+
+        {/* Pair Master Timeline Panel */}
+        <TimelinePanel
+          isOpen={isTimelineOpen}
+          onClose={() => setIsTimelineOpen(false)}
           onSelectLine={handleSelectLine}
+          pendingPrompt={pendingAgentPrompt}
+          onClearPendingPrompt={() => setPendingAgentPrompt(null)}
         />
-      </main>
+      </div>
     </div>
   );
 }

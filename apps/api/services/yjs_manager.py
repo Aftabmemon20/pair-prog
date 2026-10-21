@@ -83,6 +83,9 @@ class YjsServerManager:
 
     async def get_or_init_room(self, room_id: str):
         """Initializes a room, restoring from DB snapshot or seeding with demo/inventory.py."""
+        if not self.server.started.is_set() or self.server._task_group is None or not self.server._task_group.cancel_scope._active:
+            await self.start()
+
         room = await self.server.get_room(room_id)
         if not room.started.is_set():
             await self.server.start_room(room)

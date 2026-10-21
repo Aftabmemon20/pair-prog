@@ -53,7 +53,17 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Python AST Parser & Traceback Parser (`apps/api/services/parser.py`)**:
   - Extracts exact start and end line ranges for top-level functions, classes, and methods via Python's standard `ast` module.
   - Parses raw traceback text into structured frames (`file`, `line`, `function`, `code_line`, `error_type`, `error_message`).
-- **Pair Master Agent (LangGraph)**: Supervised state machine with typed Pydantic tools (`list_symbols`, `get_workspace_slice`, `propose_ownership`, `annotate_code`, `show_diagram`, `post_message`).
+- **Pair Master Agent (LangGraph `apps/api/agent/graph.py`)**:
+  - Supervised StateGraph orchestrator (`build_context -> plan -> tool loop -> respond -> log`) with a hard limit of 4 tool steps per turn.
+  - Untrusted data defense guardrail: source code in the editor, terminal outputs, and transcripts are tagged as untrusted data; prompt injections embedded within user code or comments are ignored.
+  - Strict response brevity: <= 120 words per response to respect display limits and live pair attention.
+  - Typed Pydantic tools (`apps/api/agent/tools.py`): `list_symbols`, `get_workspace_slice` (capped at 60 lines to respect ~3K token budget), `annotate_code`, `show_diagram`, `post_message`.
+  - Resilient Groq Client (`apps/api/services/llm_client.py`): 20s turn timeout, exponential backoff retry, automatic fallback from `openai/gpt-oss-120b` to `openai/gpt-oss-20b` on 429/503, regex secret redaction (`sk_live_`, `gsk_`, `ey...`), and SHA256 in-memory caching.
+- **Agent Timeline Panel (`apps/web/src/components/TimelinePanel.tsx`)**:
+  - Chronological event stream displaying user queries, tool execution chips (`🔧 list_symbols`, `✓ Extracted symbols`), and Pair Master responses.
+  - Active thinking status with an instant "Cancel" button using `AbortController`.
+  - Clickable code reference pills (`L28`, `line 28`) that immediately focus and reveal the line in the Monaco editor.
+  - Interactive "Ask Pair Master to Analyze" hook embedded in the traceback viewer.
 
 ### C. Database & Persistence (Supabase)
 - **Sessions & Participants**: Room lifecycle and authorization tokens (JWT signed with 4-hour expiry; max 2 human participants).
@@ -62,4 +72,4 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Recaps**: Structured summaries saved at session conclusion.
 
 ---
-*Status: Phase P2 (Sandboxed Runner + Traceback Parser) verified and complete.*
+*Status: Phase P3 (Pair Master Agent Core & Timeline) verified and complete.*
