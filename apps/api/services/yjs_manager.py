@@ -54,6 +54,10 @@ class YjsServerManager:
 
     async def start(self):
         """Starts the WebsocketServer as background task and the periodic 10s persistence task."""
+        # If server was previously stopped or task group is inactive, create fresh instance
+        if self.server.started.is_set() or (self.server._task_group is not None and not self.server._task_group.cancel_scope._active):
+            self.server = WebsocketServer(rooms_ready=True, auto_clean_rooms=False)
+
         self._server_task = asyncio.create_task(self.server.start())
         await self.server.started.wait()
         self._flush_task = asyncio.create_task(self._periodic_flush_loop())

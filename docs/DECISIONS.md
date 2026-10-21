@@ -41,3 +41,10 @@ This document tracks all significant architectural decisions, stack selections, 
   - The spike confirmed that `pycrdt.websocket.WebsocketServer` successfully synchronizes documents with browser Yjs clients.
   - Crucial finding: `WebsocketServer.start()` must be scheduled as a background asyncio task (`asyncio.create_task`), followed by awaiting `server.started.wait()`, rather than called as a blocking coroutine.
   - No secondary Node.js service is needed, avoiding extra deployment overhead on Render free tier.
+
+## ADR-008: Warm Spare Pyodide Web Worker & 5-Second Timeout
+- **Context**: Executing user code client-side in Web Workers protects servers from denial-of-service and runaway loops (`while True: pass`). However, terminating a worker on timeout leaves the editor without a runtime, and initializing Pyodide from scratch takes ~2-3 seconds.
+- **Decision**: Maintain an active worker and a pre-warmed spare worker concurrently in memory.
+- **Consequences**:
+  - If a user runs an infinite loop or a 5-second timeout fires, the active worker is terminated immediately via `worker.terminate()`.
+  - The warm spare is instantly promoted to active status with zero user-perceived downtime, while a replacement spare is spun up asynchronously in the background.
