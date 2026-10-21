@@ -1,0 +1,29 @@
+name: Keep-Warm Heartbeat
+
+on:
+  schedule:
+    # Run every 10 minutes to prevent Render free instance sleep & keep Supabase active
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  ping-services:
+    name: Keep-Warm Ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API /healthz
+        if: env.RENDER_API_URL != ''
+        env:
+          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+        run: |
+          echo "Pinging API at $RENDER_API_URL/healthz..."
+          curl -f -s -m 15 "$RENDER_API_URL/healthz" || echo "API ping failed or sleeping"
+
+      - name: Ping Supabase Keep-Alive
+        if: env.SUPABASE_URL != '' && env.SUPABASE_KEY != ''
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          echo "Pinging Supabase REST endpoint..."
+          curl -f -s -m 15 -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" "$SUPABASE_URL/rest/v1/sessions?select=id&limit=1" || echo "Supabase ping failed"

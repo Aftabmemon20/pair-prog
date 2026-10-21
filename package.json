@@ -1,0 +1,12 @@
+{
+  "name": "pairio-lite-root",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "check:services": "py -3 scripts/check_services.py",
+    "test:api": "py -3 -m pytest apps/api/tests -v",
+    "dev:api": "py -3 -m uvicorn apps.api.main:app --reload --port 8000",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build:web": "npm --prefix apps/web run build"
+  }
+}
