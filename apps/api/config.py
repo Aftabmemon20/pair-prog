@@ -25,6 +25,17 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
+    SUPABASE_PUBLISHABLE_KEY: str = ""
+    SUPABASE_SECRET_KEY: str = ""
+
+    def model_post_init(self, __context):
+        # Handle Supabase's new naming conventions
+        if not self.SUPABASE_KEY and self.SUPABASE_PUBLISHABLE_KEY:
+            self.SUPABASE_KEY = self.SUPABASE_PUBLISHABLE_KEY
+        if not self.SUPABASE_KEY and self.SUPABASE_SECRET_KEY:
+            self.SUPABASE_KEY = self.SUPABASE_SECRET_KEY
+        if not self.SUPABASE_SERVICE_ROLE_KEY and self.SUPABASE_SECRET_KEY:
+            self.SUPABASE_SERVICE_ROLE_KEY = self.SUPABASE_SECRET_KEY
 
     # LiveKit credentials
     LIVEKIT_URL: str = ""

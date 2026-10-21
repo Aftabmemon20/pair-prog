@@ -75,23 +75,27 @@ export function CallBar({ roomId }: CallBarProps) {
   const [isConfigured, setIsConfigured] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
+  const [callStatus, setCallStatus] = useState<"idle" | "connecting" | "connected" | "error">("idle");
+  const [callError, setCallError] = useState<string | null>(null);
+
   // Local media stream for offline / preview fallback
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
 
   // Fetch LiveKit access token from backend
   useEffect(() => {
-    if (!roomId || !currentUser) return;
+    if (!roomId) return;
 
     const fetchToken = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const identity = currentUser?.name || "Developer";
         const res = await fetch(`${apiUrl}/rooms/${roomId}/livekit/token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            identity: currentUser.name || "Developer",
-            name: currentUser.name || "Developer",
+            identity: identity,
+            name: identity,
           }),
         });
 
@@ -101,13 +105,21 @@ export function CallBar({ roomId }: CallBarProps) {
           setServerUrl(data.server_url);
           setIsConfigured(data.configured);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch LiveKit token:", err);
       }
     };
 
     fetchToken();
   }, [roomId, currentUser]);
+
+  const handleJoinCall = () => {
+    setIsInCall(true);
+    setIsVideoOn(true);
+    setIsAudioOn(true);
+    setCallStatus("connecting");
+    setCallError(null);
+  };
 
   // Handle local webcam/mic toggle when in preview mode (unconfigured)
   useEffect(() => {
@@ -127,9 +139,12 @@ export function CallBar({ roomId }: CallBarProps) {
           if (localVideoRef.current) {
             localVideoRef.current.srcObject = stream;
           }
+          setCallStatus("connected");
         })
         .catch((err) => {
           console.warn("Could not access camera in local preview:", err);
+          setCallError(err.message || "Camera permission denied");
+          setCallStatus("error");
           setIsVideoOn(false);
         });
     } else if (!isVideoOn && localStreamRef.current) {
@@ -172,6 +187,13 @@ export function CallBar({ roomId }: CallBarProps) {
       {/* Video feeds drawer */}
       {isInCall && !isMinimized && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+          {callError && (
+            <div className="mb-2 p-2 bg-rose-950/90 border border-rose-800 text-rose-300 text-xs rounded-lg flex items-center gap-1.5 shadow-lg">
+              <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+              <span>{callError}</span>
+            </div>
+          )}
+
           {isConfigured && token && serverUrl ? (
             <LiveKitRoom
               serverUrl={serverUrl}
@@ -181,6 +203,19 @@ export function CallBar({ roomId }: CallBarProps) {
               audio={isAudioOn}
               screen={isScreenSharing}
               data-lk-theme="default"
+              onConnected={() => {
+                setCallStatus("connected");
+                setCallError(null);
+              }}
+              onDisconnected={() => {
+                setCallStatus("idle");
+                setIsInCall(false);
+              }}
+              onError={(err) => {
+                console.error("LiveKit connection error:", err);
+                setCallStatus("error");
+                setCallError(err.message || "Failed to connect to LiveKit Cloud");
+              }}
             >
               <RoomAudioRenderer />
               <LiveKitVideoGrid />
@@ -229,8 +264,8 @@ export function CallBar({ roomId }: CallBarProps) {
         {!isInCall ? (
           /* Start Call Button */
           <button
-            onClick={() => setIsInCall(true)}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-xs rounded-xl shadow-md shadow-emerald-950/30 transition group"
+            onClick={handleJoinCall}
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-xs rounded-xl shadow-md shadow-emerald-950/30 transition group ring-1 ring-emerald-400/30"
             title="Start Pair Call (WebRTC Voice, Video, and Screen Share)"
           >
             <PhoneCall className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -239,6 +274,13 @@ export function CallBar({ roomId }: CallBarProps) {
         ) : (
           /* Active Call Controls */
           <>
+            {/* Live Status indicator */}
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-800/80 rounded-lg text-[10px] border border-slate-700/60">
+              <span className={`w-1.5 h-1.5 rounded-full ${callStatus === "connected" ? "bg-emerald-400" : callStatus === "connecting" ? "bg-amber-400 animate-pulse" : "bg-rose-400"}`} />
+              <span className="text-slate-300 font-medium">
+                {callStatus === "connected" ? "LiveKit" : callStatus === "connecting" ? "Connecting..." : "Error"}
+              </span>
+            </div>
             {/* Mic Toggle */}
             <button
               onClick={() => setIsAudioOn(!isAudioOn)}
