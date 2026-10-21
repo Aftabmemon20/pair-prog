@@ -24,6 +24,7 @@ This document tracks known omissions, planned architectural evolutions, and stub
 
 ## 3. Active Stubs
 - **STUB: Voice Push-to-Talk via Groq Whisper Turbo**: LiveKit audio stream capture to server-side `/stt` endpoint is planned for Phase P5.
-- **STUB: Interactive Mermaid Diagram Rendering**: The `show_diagram` tool is validated in P3; direct rendering of Mermaid charts into a visual canvas panel is slated for Phase P4.
-- **STUB: "Split Work" Code Ownership Assignment**: AST parsing is functional; interactive ownership toggling and visual border coloring in Monaco are slated for Phase P4.
+- **STUB: Real-Time Collaborative Freehand Drawing Canvas**: HTML5 canvas overlay with `perfect-freehand` for drawing on code is planned for Phase P5.
+- **STUB: End-of-Session Structured Recap**: Auto-generation and persistence of session decisions and summaries is planned for Phase P6.
+
 

@@ -1,22 +1,33 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Terminal, AlertTriangle, CheckCircle, Clock, Trash2, ChevronUp, ChevronDown, Layers, Bug, Sparkles } from "lucide-react";
+import { Terminal, AlertTriangle, CheckCircle, Clock, Trash2, ChevronUp, ChevronDown, Layers, Bug, Sparkles, Workflow } from "lucide-react";
 import { RunResult } from "../lib/pyodideRunner";
 import { useRoomStore } from "../store/roomStore";
+import { MermaidDiagram } from "./MermaidDiagram";
 
 interface OutputPanelProps {
   runResult: RunResult | null;
   onClear: () => void;
   onSelectLine?: (line: number) => void;
   onAskAgent?: (prompt: string) => void;
+  onAnalyzeFailure?: () => void;
+  diagramSrc?: string;
 }
 
-export function OutputPanel({ runResult, onClear, onSelectLine, onAskAgent }: OutputPanelProps) {
+export function OutputPanel({
+  runResult,
+  onClear,
+  onSelectLine,
+  onAskAgent,
+  onAnalyzeFailure,
+  diagramSrc,
+}: OutputPanelProps) {
   const { roomId } = useRoomStore();
-  const [activeTab, setActiveTab] = useState<"terminal" | "traceback" | "symbols">("terminal");
+  const [activeTab, setActiveTab] = useState<"terminal" | "traceback" | "symbols" | "diagram">("terminal");
   const [collapsed, setCollapsed] = useState(false);
   const [symbols, setSymbols] = useState<any[]>([]);
+  const [liveDiagramSrc, setLiveDiagramSrc] = useState<string>("");
 
   // Automatically switch to traceback tab if a runtime error occurs
   useEffect(() => {
@@ -36,7 +47,20 @@ export function OutputPanel({ runResult, onClear, onSelectLine, onAskAgent }: Ou
     }
   }, [activeTab, roomId]);
 
-  if (!runResult && symbols.length === 0) {
+  // Load diagram on demand when clicking diagram tab
+  useEffect(() => {
+    if (activeTab === "diagram" && roomId && !diagramSrc) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      fetch(`${apiUrl}/rooms/${roomId}/diagram`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.mermaid_src) setLiveDiagramSrc(data.mermaid_src);
+        })
+        .catch(() => {});
+    }
+  }, [activeTab, roomId, diagramSrc]);
+
+  if (!runResult && symbols.length === 0 && !liveDiagramSrc && !diagramSrc) {
     return (
       <div className="h-10 border-t border-slate-800 bg-slate-900/80 px-4 flex items-center justify-between text-xs text-slate-500">
         <div className="flex items-center gap-2">
@@ -92,6 +116,18 @@ export function OutputPanel({ runResult, onClear, onSelectLine, onAskAgent }: Ou
           >
             <Layers className="w-3.5 h-3.5" />
             <span>AST Symbols</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("diagram")}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition ${
+              activeTab === "diagram"
+                ? "bg-slate-800 text-slate-100 shadow-sm"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+            }`}
+          >
+            <Workflow className="w-3.5 h-3.5 text-purple-400" />
+            <span>Call Graph</span>
           </button>
         </div>
 
@@ -181,13 +217,17 @@ export function OutputPanel({ runResult, onClear, onSelectLine, onAskAgent }: Ou
                       </span>
                     </div>
 
-                    {onAskAgent && (
+                    {(onAnalyzeFailure || onAskAgent) && (
                       <button
-                        onClick={() =>
-                          onAskAgent(
-                            `Explain why this code failed with ${runResult.traceback?.error_type}: ${runResult.traceback?.error_message} at line ${runResult.traceback?.top_frame?.line || "?"}.`
-                          )
-                        }
+                        onClick={() => {
+                          if (onAnalyzeFailure) {
+                            onAnalyzeFailure();
+                          } else if (onAskAgent) {
+                            onAskAgent(
+                              `Explain why this code failed with ${runResult.traceback?.error_type}: ${runResult.traceback?.error_message} at line ${runResult.traceback?.top_frame?.line || "?"}.`
+                            );
+                          }
+                        }}
                         className="flex items-center gap-1.5 px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-md shadow-sm transition shrink-0"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
@@ -258,6 +298,15 @@ export function OutputPanel({ runResult, onClear, onSelectLine, onAskAgent }: Ou
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {activeTab === "diagram" && (
+            <div className="h-full w-full min-h-[190px]">
+              <MermaidDiagram
+                mermaidSrc={diagramSrc || liveDiagramSrc}
+                title="System Pipeline & Owner Call Graph"
+              />
             </div>
           )}
         </div>

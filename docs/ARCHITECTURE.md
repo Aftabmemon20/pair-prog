@@ -59,11 +59,11 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
   - Strict response brevity: <= 120 words per response to respect display limits and live pair attention.
   - Typed Pydantic tools (`apps/api/agent/tools.py`): `list_symbols`, `get_workspace_slice` (capped at 60 lines to respect ~3K token budget), `annotate_code`, `show_diagram`, `post_message`.
   - Resilient Groq Client (`apps/api/services/llm_client.py`): 20s turn timeout, exponential backoff retry, automatic fallback from `openai/gpt-oss-120b` to `openai/gpt-oss-20b` on 429/503, regex secret redaction (`sk_live_`, `gsk_`, `ey...`), and SHA256 in-memory caching.
-- **Agent Timeline Panel (`apps/web/src/components/TimelinePanel.tsx`)**:
-  - Chronological event stream displaying user queries, tool execution chips (`🔧 list_symbols`, `✓ Extracted symbols`), and Pair Master responses.
-  - Active thinking status with an instant "Cancel" button using `AbortController`.
-  - Clickable code reference pills (`L28`, `line 28`) that immediately focus and reveal the line in the Monaco editor.
-  - Interactive "Ask Pair Master to Analyze" hook embedded in the traceback viewer.
+- **Ownership & Failure Isolation Architecture (`apps/api/services/ownership.py`, `apps/api/routers/ownership.py`)**:
+  - **Dynamic AST Symbol Resolution**: Code ownership is keyed by Python symbol names (`load_items`, `apply_discount`, `checkout_total`), dynamically mapped to live line ranges. If an owner-assigned symbol is deleted or renamed, it transitions to `is_orphaned: True` rather than corrupting line ranges.
+  - **Visual Monaco Gutter Borders**: Functions owned by Dev A are highlighted with an emerald left gutter border (`#10b981`); Dev B functions are highlighted with a sky blue left gutter border (`#0284c7`).
+  - **Interactive Call Graph (Mermaid `apps/web/src/components/MermaidDiagram.tsx`)**: Automatically builds an architectural flowchart from AST caller/callee relationships, colored by owner, with zoom, reset, and source copy controls.
+  - **Automated Failure Isolation (`POST /rooms/{room_id}/agent/analyze-failure`)**: When a runtime failure occurs, Pair Master pinpoints the failing frame (`apply_discount`, line 28), correlates the owner (`Dev B`), renders line 28 with a Monaco error decoration, highlights the failing node in ruby red (`#881337`) in the Mermaid diagram, and generates a concise grounded explanation.
 
 ### C. Database & Persistence (Supabase)
 - **Sessions & Participants**: Room lifecycle and authorization tokens (JWT signed with 4-hour expiry; max 2 human participants).
@@ -72,4 +72,4 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Recaps**: Structured summaries saved at session conclusion.
 
 ---
-*Status: Phase P3 (Pair Master Agent Core & Timeline) verified and complete.*
+*Status: Phase P4 (Code Ownership Partitioning, Mermaid Call Graph & Failure Isolation) verified and complete.*

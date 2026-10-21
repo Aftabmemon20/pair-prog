@@ -74,6 +74,32 @@ TOOL_DEFINITIONS = [
     {
         "type": "function",
         "function": {
+            "name": "propose_ownership",
+            "description": "Proposes code ownership assignments for symbols between Dev A and Dev B.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "assignments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "symbol": {"type": "string", "description": "AST symbol name"},
+                                "owner": {"type": "string", "enum": ["Dev A", "Dev B"], "description": "Owner"},
+                                "rationale": {"type": "string", "description": "Reasoning for assignment"},
+                            },
+                            "required": ["symbol", "owner"],
+                        },
+                        "description": "List of symbol assignments",
+                    }
+                },
+                "required": ["assignments"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "post_message",
             "description": "Posts a direct explanation to the developers in the timeline. Response MUST be <= 120 words.",
             "parameters": {
@@ -128,6 +154,16 @@ class ShowDiagramInput(BaseModel):
         if not any(trimmed.startswith(s) for s in valid_starts):
             raise ValueError(f"Invalid Mermaid syntax. Must start with one of: {valid_starts}")
         return v
+
+
+class AssignmentItem(BaseModel):
+    symbol: str
+    owner: str
+    rationale: Optional[str] = None
+
+
+class ProposeOwnershipInput(BaseModel):
+    assignments: List[AssignmentItem]
 
 
 class PostMessageInput(BaseModel):
@@ -200,6 +236,17 @@ async def execute_tool(name: str, args: Dict[str, Any], room_id: str) -> Dict[st
         return {
             "status": "success",
             "diagram": validated.model_dump(),
+        }
+
+    elif name == "propose_ownership":
+        from apps.api.services.ownership import save_room_ownership
+        validated = ProposeOwnershipInput(**args)
+        raw_list = [item.model_dump() for item in validated.assignments]
+        await save_room_ownership(room_id, raw_list)
+        return {
+            "status": "success",
+            "count": len(raw_list),
+            "assignments": raw_list,
         }
 
     elif name == "post_message":

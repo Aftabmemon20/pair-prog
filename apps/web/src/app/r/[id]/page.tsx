@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Play, Loader2, Sparkles, AlertCircle, Split } from "lucide-react";
 import { PresenceBar } from "@/components/PresenceBar";
 import { JoinModal } from "@/components/JoinModal";
-import { CollaborativeEditor, EditorHandle } from "@/components/CollaborativeEditor";
+import { CollaborativeEditor, EditorHandle, OwnershipItem } from "@/components/CollaborativeEditor";
 import { OutputPanel } from "@/components/OutputPanel";
 import { TimelinePanel } from "@/components/TimelinePanel";
 import { useRoomStore } from "@/store/roomStore";
@@ -22,6 +22,9 @@ export default function RoomPage() {
   const [runResult, setRunResult] = useState<RunResult | null>(null);
   const [isTimelineOpen, setIsTimelineOpen] = useState(true);
   const [pendingAgentPrompt, setPendingAgentPrompt] = useState<string | null>(null);
+  const [isSplitting, setIsSplitting] = useState(false);
+  const [ownership, setOwnership] = useState<OwnershipItem[]>([]);
+  const [diagramSrc, setDiagramSrc] = useState<string | undefined>(undefined);
 
   // Restore session if available
   useEffect(() => {
@@ -80,6 +83,86 @@ export default function RoomPage() {
 
     return () => clearInterval(interval);
   }, [roomId, runResult]);
+
+  // Load room ownership on mount
+  useEffect(() => {
+    if (!roomId) return;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    fetch(`${apiUrl}/rooms/${roomId}/ownership`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((items: OwnershipItem[]) => {
+        if (items && items.length > 0) {
+          setOwnership(items);
+          if (editorRef.current) {
+            editorRef.current.setOwnershipDecorations(items);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [roomId]);
+
+  const handleSplitWork = useCallback(async () => {
+    if (isSplitting || !roomId) return;
+    setIsSplitting(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${apiUrl}/rooms/${roomId}/ownership/split`, { method: "POST" });
+      if (res.ok) {
+        const items: OwnershipItem[] = await res.json();
+        setOwnership(items);
+        if (editorRef.current) {
+          editorRef.current.setOwnershipDecorations(items);
+        }
+        // Fetch updated architectural diagram
+        const diagRes = await fetch(`${apiUrl}/rooms/${roomId}/diagram`);
+        if (diagRes.ok) {
+          const diagData = await diagRes.json();
+          setDiagramSrc(diagData.mermaid_src);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to split work:", err);
+    } finally {
+      setIsSplitting(false);
+    }
+  }, [isSplitting, roomId]);
+
+  const handleAnalyzeFailure = useCallback(async () => {
+    if (!roomId || !runResult) return;
+    setIsTimelineOpen(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${apiUrl}/rooms/${roomId}/agent/analyze-failure`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error_type: runResult.traceback?.error_type || "RuntimeError",
+          error_message: runResult.traceback?.error_message || "Execution failed",
+          line: runResult.traceback?.top_frame?.line || 28,
+          actor: currentUser?.name || "Dev A",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.mermaid_src) {
+          setDiagramSrc(data.mermaid_src);
+        }
+        if (data.line && editorRef.current) {
+          editorRef.current.jumpToLine(data.line);
+          editorRef.current.setAnnotationDecorations([
+            {
+              start_line: data.line,
+              end_line: data.line,
+              kind: "error",
+              message: `${data.failing_symbol || "function"} failed (${data.owner} owned): ${runResult.traceback?.error_type}`,
+            },
+          ]);
+        }
+      }
+    } catch (err) {
+      console.error("Analyze failure error:", err);
+    }
+  }, [roomId, runResult, currentUser]);
 
   const handleRun = useCallback(async () => {
     if (isRunning || !editorRef.current || !currentUser) return;
@@ -180,12 +263,20 @@ export default function RoomPage() {
           </button>
 
           <button
-            disabled
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-purple-300/60 bg-purple-950/20 border border-purple-800/40 rounded-md cursor-not-allowed"
-            title="Agent ownership partitioning (Enabled in Phase P4)"
+            onClick={handleSplitWork}
+            disabled={isSplitting}
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-purple-200 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-700/80 rounded-md shadow-sm transition disabled:opacity-50"
+            title="Partition code ownership between Dev A and Dev B"
           >
-            <Split className="w-3.5 h-3.5 text-purple-400/60" />
+            {isSplitting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
+            ) : (
+              <Split className="w-3.5 h-3.5 text-purple-400" />
+            )}
             <span className="hidden sm:inline">Split Work</span>
+            {ownership.length > 0 && (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            )}
           </button>
         </div>
       </div>
@@ -211,6 +302,8 @@ export default function RoomPage() {
               setIsTimelineOpen(true);
               setPendingAgentPrompt(prompt);
             }}
+            onAnalyzeFailure={handleAnalyzeFailure}
+            diagramSrc={diagramSrc}
           />
         </main>
 

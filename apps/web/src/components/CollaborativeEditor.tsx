@@ -18,10 +18,29 @@ const Editor = dynamic(() => import("@monaco-editor/react"), {
   ),
 });
 
+export interface OwnershipItem {
+  symbol: string;
+  owner: string;
+  color: string;
+  start_line?: number;
+  end_line?: number;
+  is_orphaned: boolean;
+  reason?: string;
+}
+
+export interface AnnotationItem {
+  start_line: number;
+  end_line: number;
+  kind: "warning" | "error" | "info" | "arrow";
+  message: string;
+}
+
 export interface EditorHandle {
   getCode: () => string;
   jumpToLine: (line: number) => void;
   highlightLine: (line: number) => void;
+  setOwnershipDecorations: (items: OwnershipItem[]) => void;
+  setAnnotationDecorations: (items: AnnotationItem[]) => void;
 }
 
 interface CollaborativeEditorProps {
@@ -38,6 +57,8 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
     const providerRef = useRef<WebsocketProvider | null>(null);
     const docRef = useRef<Y.Doc | null>(null);
     const decorationsRef = useRef<any[]>([]);
+    const ownershipDecorationsRef = useRef<any[]>([]);
+    const annotationDecorationsRef = useRef<any[]>([]);
     const [editorReady, setEditorReady] = useState(false);
 
     useImperativeHandle(ref, () => ({
@@ -75,6 +96,51 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
             },
           ]);
           decorationsRef.current = decorations;
+        }
+      },
+      setOwnershipDecorations: (items: OwnershipItem[]) => {
+        if (editorRef.current && monacoRef.current) {
+          const newDecorations = items
+            .filter((item) => item.start_line && item.end_line && !item.is_orphaned)
+            .map((item) => {
+              const isDevA = item.owner === "Dev A";
+              return {
+                range: new monacoRef.current.Range(item.start_line!, 1, item.end_line!, 1),
+                options: {
+                  isWholeLine: true,
+                  className: isDevA
+                    ? "bg-emerald-950/20 border-l-2 border-emerald-500/80"
+                    : "bg-sky-950/20 border-l-2 border-sky-500/80",
+                  hoverMessage: {
+                    value: `**${item.owner} Owned:** \`${item.symbol}\`${item.reason ? `\n\n*${item.reason}*` : ""}`,
+                  },
+                },
+              };
+            });
+          ownershipDecorationsRef.current = editorRef.current.deltaDecorations(
+            ownershipDecorationsRef.current,
+            newDecorations
+          );
+        }
+      },
+      setAnnotationDecorations: (items: AnnotationItem[]) => {
+        if (editorRef.current && monacoRef.current) {
+          const newDecorations = items.map((item) => {
+            return {
+              range: new monacoRef.current.Range(item.start_line, 1, item.end_line, 1),
+              options: {
+                isWholeLine: true,
+                className: "bg-rose-950/40 border-l-4 border-rose-500",
+                hoverMessage: {
+                  value: `**⚠️ Pair Master Alert:** ${item.message}`,
+                },
+              },
+            };
+          });
+          annotationDecorationsRef.current = editorRef.current.deltaDecorations(
+            annotationDecorationsRef.current,
+            newDecorations
+          );
         }
       },
     }));

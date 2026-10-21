@@ -66,3 +66,20 @@ This document tracks all significant architectural decisions, stack selections, 
   - When the user clicks "Cancel", the browser terminates the request immediately and records a cancellation event in the timeline.
 - **Consequences**: Clean collaborative timeline without extra WebSocket framing complexity; instant user control.
 
+## ADR-011: Symbol-Based Ownership Attribution & Resilient Orphan Detection
+- **Context**: In collaborative pair programming, line numbers shift constantly as users type or refactor code. Tying code ownership to absolute line ranges causes immediate drift and visual confusion.
+- **Decision**:
+  - Key ownership records exclusively to Python AST symbol names (`load_items`, `apply_discount`, `checkout_total`).
+  - Compute active start and end line numbers dynamically by parsing the live synchronized Yjs document.
+  - If a developer deletes or renames an assigned symbol, the system flags it as `is_orphaned: True` rather than losing the assignment record or associating it with incorrect lines.
+- **Consequences**: Code edits elsewhere in the document do not break ownership ranges. Gutter borders update smoothly in Monaco.
+
+## ADR-012: Live Architectural Call Graph with Error Highlighting via Mermaid
+- **Context**: During pair programming, mental model alignment is critical. Developers need to see how functions call each other, who owns each piece, and exactly where a runtime failure occurred.
+- **Decision**:
+  - Extract function calls via AST inspection and generate a declarative Mermaid `flowchart TD`.
+  - Color-code nodes with owner identities (Emerald for Dev A, Sky Blue for Dev B).
+  - When a failure is detected or analyzed, automatically highlight the failing function in ruby red (`#881337`) with a warning glyph (`⚠️ FAILING`).
+- **Consequences**: Instantly provides developers with shared visual architecture and effortless failure isolation.
+
+
