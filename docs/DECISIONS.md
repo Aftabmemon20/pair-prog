@@ -33,3 +33,11 @@ This document tracks all significant architectural decisions, stack selections, 
 - **Context**: Render free-tier instances sleep after 15 minutes of inactivity and disk storage is ephemeral.
 - **Decision**: No critical state is stored on API container disk or non-persisted RAM. Yjs snapshots and room events are flushed to Supabase Postgres.
 - **Consequences**: API instances can restart anytime without data loss; clients automatically reconnect and resync. Keep-warm cron pings `/healthz` periodically.
+
+## ADR-007: pycrdt-websocket Integration Inside FastAPI (Spike Completed)
+- **Context**: Phase P1 required a 1-hour spike to confirm whether `pycrdt-websocket` works cleanly inside FastAPI before considering a Node.js `y-websocket` fallback.
+- **Decision**: Maintain single-service Python architecture by using `pycrdt-websocket` with a custom `FastAPIWebsocketChannel` adapter.
+- **Findings & Resolution**:
+  - The spike confirmed that `pycrdt.websocket.WebsocketServer` successfully synchronizes documents with browser Yjs clients.
+  - Crucial finding: `WebsocketServer.start()` must be scheduled as a background asyncio task (`asyncio.create_task`), followed by awaiting `server.started.wait()`, rather than called as a blocking coroutine.
+  - No secondary Node.js service is needed, avoiding extra deployment overhead on Render free tier.

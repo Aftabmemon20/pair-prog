@@ -17,6 +17,7 @@
     "mermaid": "^11.4.1",
     "monaco-editor": "^0.52.2",
     "next": "15.1.7",
+    "pairio-lite-root": "file:../..",
     "perfect-freehand": "^1.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

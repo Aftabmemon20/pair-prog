@@ -41,14 +41,18 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 ### B. Backend API (`apps/api`)
 - **FastAPI (Python 3.12)**: Asynchronous REST, WebSocket endpoints, and health monitoring.
 - **Structured JSON Logging**: Every request is tagged with a unique `request_id` (via `X-Request-ID` middleware).
-- **pycrdt-websocket**: Server-side Yjs CRDT room management, enabling backend inspection of live AST structures without manual file syncing.
+- **pycrdt-websocket Server (`apps/api/services/yjs_manager.py`)**:
+  - Implements `FastAPIWebsocketChannel` to bridge Starlette WebSockets to pycrdt's transport-agnostic `Channel` protocol.
+  - Automatically seeds newly initialized rooms with `demo/inventory.py`.
+  - Runs a background task every 10 seconds to flush dirty room snapshots to Supabase / in-memory cache.
+  - Flushes immediately when the last client disconnects from a room.
 - **Pair Master Agent (LangGraph)**: Supervised state machine with typed Pydantic tools (`list_symbols`, `get_workspace_slice`, `propose_ownership`, `annotate_code`, `show_diagram`, `post_message`).
 
 ### C. Database & Persistence (Supabase)
-- **Sessions & Participants**: Room lifecycle and authorization tokens (JWT signed).
+- **Sessions & Participants**: Room lifecycle and authorization tokens (JWT signed with 4-hour expiry; max 2 human participants).
 - **Ownership**: Maps AST symbol names (not fragile line numbers) to human owners.
 - **Events**: Append-only log with unique idempotency keys. Serves timeline UI and enables session replay.
 - **Recaps**: Structured summaries saved at session conclusion.
 
 ---
-*Status: Phase P0 Foundation initialized.*
+*Status: Phase P1 (Rooms + Collaborative Editor) verified and complete.*

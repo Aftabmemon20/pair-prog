@@ -3,13 +3,15 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import Dict, Any
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from apps.api.config import settings
 from apps.api.logger import setup_logging, get_logger, request_id_ctx
 from apps.api.services.db import check_db_health
+from apps.api.services.yjs_manager import yjs_manager
+from apps.api.routers import rooms
 
 setup_logging()
 logger = get_logger("api.server")
@@ -36,7 +38,6 @@ class RequestIdAndLoggingMiddleware(BaseHTTPMiddleware):
             duration_ms = round((time.perf_counter() - start) * 1000, 2)
             response.headers["X-Request-ID"] = req_id
 
-            # Avoid logging excessive noise for /healthz unless needed, but keep structured audit
             logger.info(
                 f"{request.method} {request.url.path} -> {response.status_code} ({duration_ms}ms)",
                 extra={
@@ -73,7 +74,11 @@ async def lifespan(app: FastAPI):
         f"Starting Pairio-Lite API v{settings.VERSION} [{settings.ENVIRONMENT}]",
         extra={"extra_data": {"cors_origins": settings.cors_origins_list}},
     )
+    # Start Yjs Websocket server and periodic snapshot flush task
+    await yjs_manager.start()
     yield
+    # Gracefully stop Yjs server and persist final state
+    await yjs_manager.stop()
     logger.info("Shutting down Pairio-Lite API")
 
 
@@ -96,6 +101,19 @@ app.add_middleware(
 
 # Request ID and JSON logging middleware
 app.add_middleware(RequestIdAndLoggingMiddleware)
+
+# Include Routers
+app.include_router(rooms.router)
+
+
+@app.websocket("/yjs/{room_id}")
+async def websocket_yjs_endpoint(websocket: WebSocket, room_id: str):
+    """
+    WebSocket endpoint for real-time Yjs CRDT synchronization.
+    Serves Monaco edits, awareness, and remote cursors.
+    """
+    await websocket.accept()
+    await yjs_manager.handle_connection(websocket, room_id)
 
 
 @app.get("/healthz")
