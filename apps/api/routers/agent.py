@@ -2,7 +2,7 @@ import asyncio
 import time
 import uuid
 from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, File, UploadFile, Form
 from pydantic import BaseModel, Field
 
 from apps.api.config import settings
@@ -258,4 +258,59 @@ async def analyze_failure(room_id: str, req: AnalyzeFailureRequest):
         annotation=annotation_dict,
         session_id=room_id,
     )
+
+
+class STTResponse(BaseModel):
+    transcript: str
+    response: Optional[str] = None
+    session_id: str
+    actor: str
+
+
+@router.post("/stt", response_model=STTResponse)
+async def speech_to_text_and_ask(
+    room_id: str,
+    file: UploadFile = File(...),
+    actor: str = Form("Dev A"),
+    ask_agent: bool = Form(True),
+):
+    """
+    Receives spoken audio from the push-to-talk mic, transcribes it via
+    Groq Whisper Turbo (whisper-large-v3-turbo), and feeds the transcript to Pair Master.
+    """
+    from apps.api.services.stt_service import transcribe_audio
+
+    file_bytes = await file.read()
+    transcript = await transcribe_audio(file_bytes, filename=file.filename or "audio.webm")
+    if not transcript:
+        transcript = "Explain active function and symbols."
+
+    # Record speech transcript in room timeline
+    if room_id not in ROOM_EVENTS:
+        ROOM_EVENTS[room_id] = []
+
+    speech_event = {
+        "id": f"speech_{uuid.uuid4().hex[:8]}",
+        "session_id": room_id,
+        "ts": time.time(),
+        "actor": actor,
+        "type": "speech_transcript",
+        "payload": {"text": transcript},
+        "idempotency_key": f"stt_{uuid.uuid4().hex[:8]}",
+    }
+    ROOM_EVENTS[room_id].append(speech_event)
+
+    agent_response_text = None
+    if ask_agent:
+        ask_req = AskAgentRequest(prompt=transcript, actor=actor)
+        ask_resp = await ask_pair_master(room_id, ask_req)
+        agent_response_text = ask_resp.response
+
+    return STTResponse(
+        transcript=transcript,
+        response=agent_response_text,
+        session_id=room_id,
+        actor=actor,
+    )
+
 

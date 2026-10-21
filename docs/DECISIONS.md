@@ -82,4 +82,23 @@ This document tracks all significant architectural decisions, stack selections, 
   - When a failure is detected or analyzed, automatically highlight the failing function in ruby red (`#881337`) with a warning glyph (`⚠️ FAILING`).
 - **Consequences**: Instantly provides developers with shared visual architecture and effortless failure isolation.
 
+## ADR-013: Server-Side Whisper Audio Transcription with Browser MediaRecorder
+- **Context**: Pair programming is inherently verbal. Developers need push-to-talk voice to ask the AI facilitator questions without typing long explanations.
+- **Decision**:
+  - Use the browser's standard `MediaRecorder` API to capture Opus-compressed audio (`audio/webm`).
+  - Send audio chunks via `multipart/form-data` to FastAPI `/rooms/{room_id}/agent/stt`.
+  - Transcribe using Groq's high-speed Whisper Turbo API (`whisper-large-v3-turbo`).
+  - Treat all speech transcripts as untrusted user prompts.
+- **Consequences**: Fast transcription turnaround (~300-500ms) with zero local GPU requirements on the developer's laptop.
+
+## ADR-014: Yjs-Synchronized Vector Inking with perfect-freehand
+- **Context**: Pair programming requires pointing, circling, and sketching diagrams directly over code. Canvas raster bitmap sharing is heavy, laggy, and causes resolution blur.
+- **Decision**:
+  - Store strokes as vector coordinate point sequences `[[x, y, pressure], ...]` in a Yjs shared array `freehand_strokes`.
+  - Render dynamically into an SVG overlay using Steve Ruiz's `perfect-freehand` polygon generation.
+  - Color-code each stroke by user identity (Emerald for Dev A, Sky Blue for Dev B).
+  - Toggle pointer events on the overlay so Monaco editor text editing is completely unaffected when drawing mode is off.
+- **Consequences**: Ultra-lightweight payload (< 1KB per stroke), resolution-independent vector rendering, and instant real-time synchronization between peers.
+
+
 

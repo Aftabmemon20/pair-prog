@@ -2,12 +2,14 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { Play, Loader2, Sparkles, AlertCircle, Split } from "lucide-react";
+import { Play, Loader2, Sparkles, AlertCircle, Split, PenTool, Eraser } from "lucide-react";
 import { PresenceBar } from "@/components/PresenceBar";
 import { JoinModal } from "@/components/JoinModal";
 import { CollaborativeEditor, EditorHandle, OwnershipItem } from "@/components/CollaborativeEditor";
 import { OutputPanel } from "@/components/OutputPanel";
 import { TimelinePanel } from "@/components/TimelinePanel";
+import { DrawingCanvas } from "@/components/DrawingCanvas";
+import { VoiceButton } from "@/components/VoiceButton";
 import { useRoomStore } from "@/store/roomStore";
 import { pyodideRunner, RunResult } from "@/lib/pyodideRunner";
 
@@ -25,6 +27,7 @@ export default function RoomPage() {
   const [isSplitting, setIsSplitting] = useState(false);
   const [ownership, setOwnership] = useState<OwnershipItem[]>([]);
   const [diagramSrc, setDiagramSrc] = useState<string | undefined>(undefined);
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
 
   // Restore session if available
   useEffect(() => {
@@ -245,6 +248,46 @@ export default function RoomPage() {
               {pyodideStatus === "ready" ? "Sandbox Ready" : pyodideStatus === "loading" ? "Preloading..." : pyodideStatus}
             </span>
           </div>
+
+          <div className="h-4 w-px bg-slate-800 mx-1 hidden sm:block" />
+
+          {/* Voice Push-to-Talk (Groq Whisper Turbo) */}
+          <VoiceButton
+            roomId={roomId}
+            onSpeechTranscribed={() => setIsTimelineOpen(true)}
+          />
+
+          {/* Collaborative Drawing Tool (perfect-freehand) */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsDrawingMode(!isDrawingMode)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border font-medium transition ${
+                isDrawingMode
+                  ? "bg-emerald-950/80 border-emerald-500 text-emerald-200 ring-2 ring-emerald-500/20"
+                  : "bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/60 text-slate-300 hover:text-slate-100"
+              }`}
+              title="Toggle Collaborative Freehand Drawing (Draw on Code)"
+            >
+              <PenTool className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Draw</span>
+            </button>
+
+            {isDrawingMode && (
+              <button
+                onClick={() => {
+                  const doc = editorRef.current?.getYDoc();
+                  if (doc) {
+                    const arr = doc.getArray("freehand_strokes");
+                    arr.delete(0, arr.length);
+                  }
+                }}
+                className="p-1 text-slate-400 hover:text-rose-300 hover:bg-slate-800 rounded transition"
+                title="Clear all drawings on screen"
+              >
+                <Eraser className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Right side facilitator button & timeline toggle */}
@@ -290,6 +333,10 @@ export default function RoomPage() {
               ref={editorRef}
               roomId={roomId}
               onRunShortcut={handleRun}
+            />
+            <DrawingCanvas
+              isDrawingMode={isDrawingMode}
+              ydoc={editorRef.current?.getYDoc()}
             />
           </div>
 

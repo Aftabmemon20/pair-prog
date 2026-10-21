@@ -23,8 +23,7 @@ This document tracks known omissions, planned architectural evolutions, and stub
   - Prototype hard-caps at 2 human participants + 1 AI agent per room.
 
 ## 3. Active Stubs
-- **STUB: Voice Push-to-Talk via Groq Whisper Turbo**: LiveKit audio stream capture to server-side `/stt` endpoint is planned for Phase P5.
-- **STUB: Real-Time Collaborative Freehand Drawing Canvas**: HTML5 canvas overlay with `perfect-freehand` for drawing on code is planned for Phase P5.
-- **STUB: End-of-Session Structured Recap**: Auto-generation and persistence of session decisions and summaries is planned for Phase P6.
+- **STUB: End-of-Session Structured Recap**: Auto-generation, Supabase persistence, and view-only summary export of session decisions and summaries are planned for Phase P6.
+
 
 

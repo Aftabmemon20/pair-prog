@@ -59,11 +59,15 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
   - Strict response brevity: <= 120 words per response to respect display limits and live pair attention.
   - Typed Pydantic tools (`apps/api/agent/tools.py`): `list_symbols`, `get_workspace_slice` (capped at 60 lines to respect ~3K token budget), `annotate_code`, `show_diagram`, `post_message`.
   - Resilient Groq Client (`apps/api/services/llm_client.py`): 20s turn timeout, exponential backoff retry, automatic fallback from `openai/gpt-oss-120b` to `openai/gpt-oss-20b` on 429/503, regex secret redaction (`sk_live_`, `gsk_`, `ey...`), and SHA256 in-memory caching.
-- **Ownership & Failure Isolation Architecture (`apps/api/services/ownership.py`, `apps/api/routers/ownership.py`)**:
-  - **Dynamic AST Symbol Resolution**: Code ownership is keyed by Python symbol names (`load_items`, `apply_discount`, `checkout_total`), dynamically mapped to live line ranges. If an owner-assigned symbol is deleted or renamed, it transitions to `is_orphaned: True` rather than corrupting line ranges.
-  - **Visual Monaco Gutter Borders**: Functions owned by Dev A are highlighted with an emerald left gutter border (`#10b981`); Dev B functions are highlighted with a sky blue left gutter border (`#0284c7`).
-  - **Interactive Call Graph (Mermaid `apps/web/src/components/MermaidDiagram.tsx`)**: Automatically builds an architectural flowchart from AST caller/callee relationships, colored by owner, with zoom, reset, and source copy controls.
-  - **Automated Failure Isolation (`POST /rooms/{room_id}/agent/analyze-failure`)**: When a runtime failure occurs, Pair Master pinpoints the failing frame (`apply_discount`, line 28), correlates the owner (`Dev B`), renders line 28 with a Monaco error decoration, highlights the failing node in ruby red (`#881337`) in the Mermaid diagram, and generates a concise grounded explanation.
+- **Voice Push-to-Talk STT (`apps/api/services/stt_service.py`, `apps/web/src/components/VoiceButton.tsx`)**:
+  - Browser `MediaRecorder` captures audio in `audio/webm;codecs=opus` and uploads to `POST /rooms/{room_id}/agent/stt`.
+  - Transcribes audio via Groq Whisper Turbo (`whisper-large-v3-turbo`) with 20s timeout and untrusted transcript handling.
+  - Automatically commits speech events to room timeline and triggers Pair Master agent inquiry.
+- **Collaborative Freehand Drawing Canvas (`apps/web/src/components/DrawingCanvas.tsx`)**:
+  - Transparent SVG overlay rendered with Steve Ruiz's `perfect-freehand` algorithm, producing smooth calligraphic strokes with pressure variation.
+  - Synchronized across peers via Yjs shared array `freehand_strokes` without locking.
+  - Color-coded per participant: Dev A (Emerald `#10b981`), Dev B (Sky Blue `#0284c7`).
+  - "Draw" mode toggle leaves underlying Monaco editor fully functional when inactive.
 
 ### C. Database & Persistence (Supabase)
 - **Sessions & Participants**: Room lifecycle and authorization tokens (JWT signed with 4-hour expiry; max 2 human participants).
@@ -72,4 +76,4 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Recaps**: Structured summaries saved at session conclusion.
 
 ---
-*Status: Phase P4 (Code Ownership Partitioning, Mermaid Call Graph & Failure Isolation) verified and complete.*
+*Status: Phase P5 (Voice Push-to-Talk via Groq Whisper Turbo & Collaborative Freehand Canvas) verified and complete.*

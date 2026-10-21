@@ -41,6 +41,7 @@ export interface EditorHandle {
   highlightLine: (line: number) => void;
   setOwnershipDecorations: (items: OwnershipItem[]) => void;
   setAnnotationDecorations: (items: AnnotationItem[]) => void;
+  getYDoc: () => Y.Doc | null;
 }
 
 interface CollaborativeEditorProps {
@@ -142,6 +143,9 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
             newDecorations
           );
         }
+      },
+      getYDoc: () => {
+        return docRef.current;
       },
     }));
 
