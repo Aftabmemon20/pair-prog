@@ -10,6 +10,7 @@ import { OutputPanel } from "@/components/OutputPanel";
 import { TimelinePanel } from "@/components/TimelinePanel";
 import { DrawingCanvas } from "@/components/DrawingCanvas";
 import { VoiceButton } from "@/components/VoiceButton";
+import { RecapModal } from "@/components/RecapModal";
 import { useRoomStore } from "@/store/roomStore";
 import { pyodideRunner, RunResult } from "@/lib/pyodideRunner";
 
@@ -28,6 +29,7 @@ export default function RoomPage() {
   const [ownership, setOwnership] = useState<OwnershipItem[]>([]);
   const [diagramSrc, setDiagramSrc] = useState<string | undefined>(undefined);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [isRecapOpen, setIsRecapOpen] = useState(false);
 
   // Restore session if available
   useEffect(() => {
@@ -203,8 +205,13 @@ export default function RoomPage() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 select-none">
-      <PresenceBar />
+      <PresenceBar onOpenRecap={() => setIsRecapOpen(true)} />
       <JoinModal roomId={roomId} />
+      <RecapModal
+        roomId={roomId}
+        isOpen={isRecapOpen}
+        onClose={() => setIsRecapOpen(false)}
+      />
 
       {/* Editor Sub-Header Toolbar */}
       <div className="h-10 bg-slate-900/90 border-b border-slate-800 px-4 flex items-center justify-between">

@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Copy, Check, Users, Shield, Bot, Radio } from "lucide-react";
+import { Copy, Check, Users, Shield, Bot, Radio, FileText } from "lucide-react";
 import { useRoomStore } from "../store/roomStore";
 
-export function PresenceBar() {
+interface PresenceBarProps {
+  onOpenRecap?: () => void;
+}
+
+export function PresenceBar({ onOpenRecap }: PresenceBarProps) {
   const { roomId, connectionStatus, participants, currentUser } = useRoomStore();
   const [copied, setCopied] = useState(false);
 
@@ -95,8 +99,19 @@ export function PresenceBar() {
         </div>
       </div>
 
-      {/* Right: User identity tag */}
+      {/* Right: Recap & User identity tag */}
       <div className="flex items-center gap-2 text-xs">
+        {onOpenRecap && (
+          <button
+            onClick={onOpenRecap}
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 border border-purple-800/60 rounded-md transition shadow-sm"
+            title="End pairing session & view Pair Master recap"
+          >
+            <FileText className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline font-medium">Recap</span>
+          </button>
+        )}
+
         {currentUser && (
           <div className="flex items-center gap-2 px-2 py-1 bg-slate-800/60 rounded-md border border-slate-700/40">
             <span className="text-slate-400">You:</span>

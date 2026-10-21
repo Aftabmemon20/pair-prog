@@ -73,7 +73,11 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Sessions & Participants**: Room lifecycle and authorization tokens (JWT signed with 4-hour expiry; max 2 human participants).
 - **Ownership**: Maps AST symbol names (not fragile line numbers) to human owners.
 - **Events**: Append-only log with unique idempotency keys. Serves timeline UI, run output synchronization, and session replay.
-- **Recaps**: Structured summaries saved at session conclusion.
+### D. End-of-Session Structured Recap Engine
+- **Event Aggregation**: Queries room event history (code executions, errors, ownership splits, agent conversations).
+- **Pydantic Validation**: Enforces structured schema (`executive_summary`, `decisions_made`, `ownership_breakdown`, `bugs_encountered`, `action_items`).
+- **Resilient Repair Chain (Rule 6)**: If the LLM generates malformed JSON, a 1-shot repair prompt fixes the syntax, guaranteeing a valid recap without crashing the room.
+- **Export Formats**: Provides JSON API, Supabase DB persistence, in-app rich modal view, and Markdown export for clipboard/file saving.
 
 ---
-*Status: Phase P5 (Voice Push-to-Talk via Groq Whisper Turbo & Collaborative Freehand Canvas) verified and complete.*
+*Status: Phase P6 (End-of-Session Structured Recap, Supabase Persistence & Markdown Export) verified and complete.*

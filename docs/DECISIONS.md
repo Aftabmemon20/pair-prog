@@ -100,5 +100,15 @@ This document tracks all significant architectural decisions, stack selections, 
   - Toggle pointer events on the overlay so Monaco editor text editing is completely unaffected when drawing mode is off.
 - **Consequences**: Ultra-lightweight payload (< 1KB per stroke), resolution-independent vector rendering, and instant real-time synchronization between peers.
 
+## ADR-015: Structured Session Recap & Pydantic Repair Chain
+- **Context**: At the end of a pairing session, engineers forget which bugs occurred, who owned which functions, and what decisions were finalized. A generic LLM text output is hard to consume, parse, or persist.
+- **Decision**:
+  - Extract session facts deterministically from the room event log and AST ownership mapping before sending to the LLM.
+  - Require the LLM to output strictly formatted JSON conforming to a Pydantic `SessionRecap` model with typed sub-models (`BugRecord`, `OwnershipSummaryItem`).
+  - Follow AGENTS.md Rule 6: On JSON parse failure, trigger exactly ONE repair retry with error feedback; if that fails, fall back to a safe, deterministic template recap.
+  - Persist to Supabase `recaps` table (with in-memory fallback for offline/local testing) and expose both structured JSON and clean Markdown endpoints.
+- **Consequences**: Guarantees zero room crashes, provides predictable UI rendering in `RecapModal.tsx`, and enables 1-click Markdown copying for engineering team notes or PR descriptions.
+
+
 
 

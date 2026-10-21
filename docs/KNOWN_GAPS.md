@@ -22,8 +22,9 @@ This document tracks known omissions, planned architectural evolutions, and stub
 - **Concurrency & Room Limits**:
   - Prototype hard-caps at 2 human participants + 1 AI agent per room.
 
-## 3. Active Stubs
-- **STUB: End-of-Session Structured Recap**: Auto-generation, Supabase persistence, and view-only summary export of session decisions and summaries are planned for Phase P6.
+## 3. Active Stubs & Current Phase
+- **Recap Feature**: Fully implemented in Phase P6 (Pydantic schema, Rule 6 repair retry, Supabase persistence, Markdown export, and frontend modal).
+- **Phase P7 Scope**: End-to-end multi-seat validation tests (Playwright two-browser contexts) and final live demo script testing (`demo/inventory.py` and `demo/SCRIPT.md`).
 
 
 
