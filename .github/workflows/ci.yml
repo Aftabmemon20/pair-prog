@@ -27,7 +27,7 @@ jobs:
 
       - name: Lint with Ruff
         run: |
-          ruff check apps/api scripts
+          ruff check --config pyproject.toml apps/api scripts
 
       - name: Run API Tests
         run: |

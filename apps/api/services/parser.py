@@ -277,8 +277,8 @@ def generate_call_graph_mermaid(
             if isinstance(child, ast.Call) and isinstance(child.func, ast.Name):
                 if child.func.id in func_names and child.func.id not in pipeline_order:
                     pipeline_order.append(child.func.id)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Could not deduce AST pipeline order: {e}")
 
     # Build edges
     edges: List[str] = []

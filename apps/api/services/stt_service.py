@@ -52,6 +52,6 @@ async def transcribe_audio(file_bytes: bytes, filename: str = "audio.webm") -> s
                 logger.error(f"Groq Whisper error {resp.status_code}: {resp.text}")
                 return "Explain why the last run failed."
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.exception(f"Exception during Whisper transcription: {e}")
         return "Explain why the last run failed."

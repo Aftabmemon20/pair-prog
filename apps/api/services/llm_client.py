@@ -214,8 +214,8 @@ class GroqLLMClient:
                         ],
                         "_mock": True,
                     }
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Could not parse mock tool response: {e}")
 
             return {
                 "id": "mock_resp_generic",

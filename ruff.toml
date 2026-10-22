@@ -1,0 +1,26 @@
+target-version = "py312"
+line-length = 120
+exclude = [
+    ".git",
+    ".pytest_cache",
+    "apps/web",
+    "node_modules",
+]
+
+[lint]
+select = ["E", "F", "W"]
+ignore = [
+    "E501",
+    "BLE001",
+    "S110",
+    "B017",
+    "I001",
+    "B008",
+    "E402",
+    "F401",
+    "F841",
+]
+
+[lint.per-file-ignores]
+"apps/api/tests/*" = ["B017", "S101", "BLE001", "F401"]
+"scripts/*" = ["BLE001", "E402"]

@@ -70,7 +70,7 @@ class YjsServerManager:
             try:
                 await self._flush_task
             except asyncio.CancelledError:
-                pass
+                logger.debug("Flush task cancelled on shutdown")
         # Perform final flush
         await self.flush_all_rooms()
         await self.server.stop()
@@ -78,7 +78,7 @@ class YjsServerManager:
             try:
                 await self._server_task
             except asyncio.CancelledError:
-                pass
+                logger.debug("Server task cancelled on shutdown")
         logger.info("YjsServerManager stopped")
 
     async def get_or_init_room(self, room_id: str):

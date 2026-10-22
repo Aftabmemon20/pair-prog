@@ -71,7 +71,7 @@ async def save_room_ownership(room_id: str, assignments: List[Dict[str, Any]]) -
             ]
             async with httpx.AsyncClient(timeout=3.0) as client:
                 await client.post(f"{settings.SUPABASE_URL}/rest/v1/ownership", json=rows, headers=headers)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Could not persist ownership to Supabase: {e}")
 
 

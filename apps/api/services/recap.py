@@ -69,7 +69,7 @@ async def get_session_recap(room_id: str) -> Optional[SessionRecap]:
                     )
                     IN_MEMORY_RECAPS[room_id] = recap.model_dump()
                     return recap
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Could not load recap from Supabase: {e}")
 
     return None

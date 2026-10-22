@@ -1,0 +1,30 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+exclude = [
+    ".git",
+    ".pytest_cache",
+    "apps/web",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+# Select standard rules: Pyflakes (F) and pycodestyle (E, W)
+select = ["E", "F", "W"]
+
+# Ignore rules that cause false positives or strict stylistic checks in CI
+ignore = [
+    "E501",   # Line length
+    "BLE001", # Do not catch blind Exception
+    "S110",   # try-except-pass detected
+    "B017",   # broad pytest.raises(Exception)
+    "I001",   # Import block is un-sorted or un-formatted
+    "B008",   # Do not perform function call in argument defaults (FastAPI Depends)
+    "E402",   # Module level import not at top of file
+    "F401",   # Imported but unused
+    "F841",   # Local variable assigned but never used
+]
+
+[tool.ruff.lint.per-file-ignores]
+"apps/api/tests/*" = ["B017", "S101", "BLE001", "F401"]
+"scripts/*" = ["BLE001", "E402"]

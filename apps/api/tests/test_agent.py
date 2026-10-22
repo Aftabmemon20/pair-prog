@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 from fastapi.testclient import TestClient
 from apps.api.main import app
 from apps.api.services.llm_client import redact_secrets, truncate_context_tokens
@@ -40,7 +41,7 @@ async def test_typed_tools_validation():
 
     # Excessively long message rejected by Pydantic
     long_text = "word " * 150
-    with pytest.raises(Exception):
+    with pytest.raises((ValidationError, ValueError)):
         await execute_tool("post_message", {"text": long_text}, "test_tools_room")
 
 
