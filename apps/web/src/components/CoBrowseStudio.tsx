@@ -97,6 +97,44 @@ export function CoBrowseStudio({
     };
   }, [ydoc]);
 
+  // Sync Co-Browse Tab URL across peers via Yjs
+  useEffect(() => {
+    if (!ydoc) return;
+    const tabMap = ydoc.getMap("shared_tab");
+    const savedUrl = tabMap.get("url") as string;
+    if (savedUrl && savedUrl !== currentUrl) {
+      setCurrentUrl(savedUrl);
+      setUrlInput(savedUrl);
+    }
+
+    const observer = () => {
+      const updatedUrl = tabMap.get("url") as string;
+      if (updatedUrl && updatedUrl !== currentUrl) {
+        setCurrentUrl(updatedUrl);
+        setUrlInput(updatedUrl);
+        setIframeKey((prev) => prev + 1);
+      }
+    };
+
+    tabMap.observe(observer);
+    return () => {
+      tabMap.unobserve(observer);
+    };
+  }, [ydoc]);
+
+  const updateSharedUrl = (url: string) => {
+    setCurrentUrl(url);
+    setUrlInput(url);
+    setIframeKey((prev) => prev + 1);
+    if (ydoc) {
+      const tabMap = ydoc.getMap("shared_tab");
+      tabMap.set("url", url);
+      tabMap.set("updated_by", currentUser?.name || "Dev A");
+    }
+  };
+
+
+
   // Yjs Remote Click Synchronization (Dev B -> Dev A)
   const [remoteRipple, setRemoteRipple] = useState<{ x: number; y: number; sender: string } | null>(null);
 
@@ -285,8 +323,7 @@ export function CoBrowseStudio({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setCurrentUrl(urlInput);
-              setIframeKey((prev) => prev + 1);
+              updateSharedUrl(urlInput);
             }}
             className="flex-1 max-w-sm flex items-center bg-slate-950/80 border border-slate-700/80 rounded-md px-2 py-0.5 text-xs text-slate-200 focus-within:border-emerald-500 transition"
           >
@@ -316,9 +353,7 @@ export function CoBrowseStudio({
                 <button
                   key={preset.name}
                   onClick={() => {
-                    setUrlInput(preset.url);
-                    setCurrentUrl(preset.url);
-                    setIframeKey((prev) => prev + 1);
+                    updateSharedUrl(preset.url);
                   }}
                   className="px-2 py-0.5 text-[10px] text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded transition"
                 >
