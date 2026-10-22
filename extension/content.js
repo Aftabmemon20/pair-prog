@@ -160,6 +160,14 @@
     }
   });
 
+  // Cross-Window / Web App Message Bridge for Remote Click
+  window.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "PAIRIO_REMOTE_CLICK" && allowControl) {
+      handleRemoteClick(event.data.data);
+    }
+  });
+
+
   function renderRemoteClickRipple(x, y) {
     const ripple = document.createElement("div");
     ripple.style.position = "fixed";

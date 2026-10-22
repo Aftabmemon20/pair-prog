@@ -97,14 +97,62 @@ export function CoBrowseStudio({
     };
   }, [ydoc]);
 
-  // Clean up media stream on unmount
+  // Yjs Remote Click Synchronization (Dev B -> Dev A)
+  const [remoteRipple, setRemoteRipple] = useState<{ x: number; y: number; sender: string } | null>(null);
+
   useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
+    if (!ydoc) return;
+    const remoteMap = ydoc.getMap("remote_control");
+    const observer = () => {
+      const clickData: any = remoteMap.get("click");
+      if (clickData && clickData.sender !== currentUser?.name) {
+        // Forward event to Extension content script on Host machine
+        window.postMessage({ type: "PAIRIO_REMOTE_CLICK", data: clickData }, "*");
+
+        // Render visual ripple for peer
+        setRemoteRipple({
+          x: clickData.xRatio * 100,
+          y: clickData.yRatio * 100,
+          sender: clickData.sender || "Peer",
+        });
+        setTimeout(() => setRemoteRipple(null), 800);
       }
     };
-  }, []);
+
+    remoteMap.observe(observer);
+    return () => {
+      remoteMap.unobserve(observer);
+    };
+  }, [ydoc, currentUser]);
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDrawingMode) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const yRatio = (e.clientY - rect.top) / rect.height;
+
+    // Show instant local ripple
+    setRemoteRipple({
+      x: xRatio * 100,
+      y: yRatio * 100,
+      sender: currentUser?.name || "You",
+    });
+    setTimeout(() => setRemoteRipple(null), 800);
+
+    // Broadcast click to peer over Yjs
+    if (ydoc) {
+      const remoteMap = ydoc.getMap("remote_control");
+      remoteMap.set("click", {
+        xRatio,
+        yRatio,
+        sender: currentUser?.name || "Dev B",
+        ts: Date.now(),
+      });
+    }
+  };
+
 
   // Handle Tab Casting via getDisplayMedia
   const startTabShare = async () => {
@@ -367,7 +415,12 @@ export function CoBrowseStudio({
       </div>
 
       {/* Main Display Canvas Container */}
-      <div className="flex-1 relative overflow-hidden bg-slate-950 flex items-center justify-center">
+      <div
+        onClick={handleContainerClick}
+        className={`flex-1 relative overflow-hidden bg-slate-950 flex items-center justify-center ${
+          !isDrawingMode ? "cursor-pointer" : ""
+        }`}
+      >
         {isSharingTab ? (
           // Active Video Stream of Shared Tab
           <video
@@ -375,7 +428,7 @@ export function CoBrowseStudio({
             autoPlay
             playsInline
             muted
-            className="w-full h-full object-contain bg-black"
+            className="w-full h-full object-contain bg-black pointer-events-none"
           />
         ) : (
           // Interactive Webview Frame
@@ -389,6 +442,24 @@ export function CoBrowseStudio({
             />
           </div>
         )}
+
+        {/* Visual Remote Click Ripple */}
+        {remoteRipple && (
+          <div
+            className="absolute z-30 pointer-events-none transition-all duration-500 ease-out flex flex-col items-center"
+            style={{
+              left: `${remoteRipple.x}%`,
+              top: `${remoteRipple.y}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <div className="w-8 h-8 rounded-full border-2 border-cyan-400 bg-cyan-500/30 animate-ping" />
+            <span className="text-[10px] font-bold text-cyan-300 bg-slate-900/90 px-1.5 py-0.5 rounded shadow mt-1 whitespace-nowrap">
+              {remoteRipple.sender} Clicked
+            </span>
+          </div>
+        )}
+
 
         {/* Telestrator Freehand SVG Overlay */}
         <svg
