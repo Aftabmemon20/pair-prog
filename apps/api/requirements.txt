@@ -8,3 +8,5 @@ python-dotenv>=1.0.1
 pycrdt-websocket>=0.14.0
 pyjwt>=2.9.0
 pytest>=8.3.0
+langgraph>=0.2.0
+python-multipart>=0.0.12
