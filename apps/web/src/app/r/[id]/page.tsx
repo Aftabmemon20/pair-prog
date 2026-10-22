@@ -2,13 +2,14 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { Play, Loader2, Sparkles, AlertCircle, Split, PenTool, Eraser } from "lucide-react";
+import { Play, Loader2, Sparkles, AlertCircle, Split, PenTool, Eraser, Globe } from "lucide-react";
 import { PresenceBar } from "@/components/PresenceBar";
 import { JoinModal } from "@/components/JoinModal";
 import { CollaborativeEditor, EditorHandle, OwnershipItem } from "@/components/CollaborativeEditor";
 import { OutputPanel } from "@/components/OutputPanel";
 import { TimelinePanel } from "@/components/TimelinePanel";
 import { DrawingCanvas } from "@/components/DrawingCanvas";
+import { CoBrowseStudio } from "@/components/CoBrowseStudio";
 import { VoiceButton } from "@/components/VoiceButton";
 import { RecapModal } from "@/components/RecapModal";
 import { CallBar } from "@/components/CallBar";
@@ -30,6 +31,7 @@ export default function RoomPage() {
   const [ownership, setOwnership] = useState<OwnershipItem[]>([]);
   const [diagramSrc, setDiagramSrc] = useState<string | undefined>(undefined);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [isCoBrowseOpen, setIsCoBrowseOpen] = useState(false);
   const [isRecapOpen, setIsRecapOpen] = useState(false);
 
   // Restore session if available
@@ -298,8 +300,25 @@ export default function RoomPage() {
           </div>
         </div>
 
-        {/* Right side facilitator button & timeline toggle */}
+        {/* Right side facilitator button, co-browse toggle & timeline toggle */}
         <div className="flex items-center gap-2">
+          {/* Co-Browse Tab Studio Button */}
+          <button
+            onClick={() => setIsCoBrowseOpen(!isCoBrowseOpen)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition ${
+              isCoBrowseOpen
+                ? "bg-teal-950/80 border-teal-500 text-teal-200 ring-2 ring-teal-500/20 shadow-sm"
+                : "bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/60 text-slate-300 hover:text-slate-100"
+            }`}
+            title="Toggle Co-Browse Studio (Share & Annotate Browser Tabs)"
+          >
+            <Globe className="w-3.5 h-3.5 text-teal-400" />
+            <span className="hidden sm:inline">Co-Browse Tab</span>
+            {isCoBrowseOpen && (
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+            )}
+          </button>
+
           <button
             onClick={() => setIsTimelineOpen(!isTimelineOpen)}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition ${
@@ -336,16 +355,34 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Editor on top, Output Panel on bottom */}
         <main className="flex-1 flex flex-col relative overflow-hidden">
-          <div className="flex-1 relative overflow-hidden">
-            <CollaborativeEditor
-              ref={editorRef}
-              roomId={roomId}
-              onRunShortcut={handleRun}
-            />
-            <DrawingCanvas
-              isDrawingMode={isDrawingMode}
-              ydoc={editorRef.current?.getYDoc()}
-            />
+          <div className="flex-1 flex overflow-hidden relative">
+            {/* Monaco Editor Container */}
+            <div className={`h-full relative overflow-hidden transition-all duration-200 ${isCoBrowseOpen ? "w-1/2 border-r border-slate-800" : "w-full"}`}>
+              <CollaborativeEditor
+                ref={editorRef}
+                roomId={roomId}
+                onRunShortcut={handleRun}
+              />
+              <DrawingCanvas
+                isDrawingMode={isDrawingMode}
+                ydoc={editorRef.current?.getYDoc()}
+              />
+            </div>
+
+            {/* Co-Browse Tab Studio Panel */}
+            {isCoBrowseOpen && (
+              <div className="w-1/2 h-full flex flex-col relative overflow-hidden">
+                <CoBrowseStudio
+                  roomId={roomId}
+                  ydoc={editorRef.current?.getYDoc()}
+                  onAskAgent={(prompt) => {
+                    setIsTimelineOpen(true);
+                    setPendingAgentPrompt(prompt);
+                  }}
+                  onClose={() => setIsCoBrowseOpen(false)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Output Diagnostics Panel */}
