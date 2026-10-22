@@ -31,6 +31,23 @@ interface CallBarProps {
 
 function LiveKitVideoGrid() {
   const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare]);
+  const { setActiveScreenStream } = useRoomStore();
+
+  // Automatically lift any active LiveKit screen share track to the main Co-Browse Studio canvas
+  useEffect(() => {
+    const screenTrackRef = tracks.find((t) => t.source === Track.Source.ScreenShare);
+    if (screenTrackRef) {
+      const mediaStreamTrack = screenTrackRef.publication?.track?.mediaStreamTrack;
+      if (mediaStreamTrack) {
+        const stream = new MediaStream([mediaStreamTrack]);
+        const sharer = screenTrackRef.participant.name || screenTrackRef.participant.identity;
+        setActiveScreenStream(stream, sharer);
+        return;
+      }
+    }
+    // Only clear if no LiveKit screen track is active
+    setActiveScreenStream(null);
+  }, [tracks, setActiveScreenStream]);
 
   if (tracks.length === 0) {
     return (
@@ -42,23 +59,34 @@ function LiveKitVideoGrid() {
 
   return (
     <div className="flex gap-2 p-2 max-w-full overflow-x-auto bg-slate-950/90 backdrop-blur rounded-xl border border-slate-800 shadow-2xl">
-      {tracks.map((trackRef) => (
-        <div
-          key={`${trackRef.participant.identity}-${trackRef.source}`}
-          className="relative w-44 h-28 bg-slate-900 rounded-lg overflow-hidden border border-slate-700/80 shadow-md group flex-shrink-0"
-        >
-          <VideoTrack trackRef={trackRef} className="w-full h-full object-cover" />
-          <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur text-[10px] text-slate-200 border border-slate-800 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="truncate max-w-[90px]">
-              {trackRef.participant.name || trackRef.participant.identity}
-            </span>
-            {trackRef.source === Track.Source.ScreenShare && (
-              <span className="text-[9px] text-sky-400 font-mono">(Screen)</span>
+      {tracks.map((trackRef) => {
+        const isScreen = trackRef.source === Track.Source.ScreenShare;
+        return (
+          <div
+            key={`${trackRef.participant.identity}-${trackRef.source}`}
+            className={`relative w-44 h-28 bg-slate-900 rounded-lg overflow-hidden border shadow-md group flex-shrink-0 ${
+              isScreen ? "border-sky-500/80 ring-1 ring-sky-500/40" : "border-slate-700/80"
+            }`}
+          >
+            <VideoTrack trackRef={trackRef} className="w-full h-full object-cover" />
+            <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded bg-slate-950/85 backdrop-blur text-[10px] text-slate-200 border border-slate-800 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="truncate max-w-[85px]">
+                {trackRef.participant.name || trackRef.participant.identity}
+              </span>
+              {isScreen && (
+                <span className="text-[9px] text-sky-400 font-mono font-bold">(Screen)</span>
+              )}
+            </div>
+
+            {isScreen && (
+              <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-sky-950/80 border border-sky-500/40 text-[9px] text-sky-300 font-medium">
+                Live in Studio
+              </div>
             )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

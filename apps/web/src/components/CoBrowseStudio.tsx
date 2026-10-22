@@ -68,7 +68,7 @@ export function CoBrowseStudio({
   onAskAgent,
   onClose,
 }: CoBrowseStudioProps) {
-  const { currentUser } = useRoomStore();
+  const { currentUser, activeScreenStream, activeScreenSharer } = useRoomStore();
 
   // Media Stream state
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -94,8 +94,10 @@ export function CoBrowseStudio({
   const [strokes, setStrokes] = useState<FreehandStroke[]>([]);
   const isPointerDownRef = useRef(false);
 
-  // Determine current active video stream (either local if sharing, or remote if peer is sharing)
-  const activeVideoStream = isSharingTab ? localStream : isPeerSharing ? remoteStream : null;
+  // Determine current active video stream (LiveKit screen share, local tab cast, or P2P WebRTC)
+  const activeVideoStream = activeScreenStream || (isSharingTab ? localStream : isPeerSharing ? remoteStream : null);
+  const displaySharerName = activeScreenSharer || (isSharingTab ? currentUser?.name : sharerName) || "Peer";
+  const isAnyStreamActive = Boolean(activeVideoStream);
 
   // Video Callback Ref: ensures video immediately binds stream and calls play() without black frames
   const setVideoRef = useCallback(
@@ -489,8 +491,6 @@ export function CoBrowseStudio({
       })
     : [];
 
-  const isAnyStreamActive = Boolean(isSharingTab || isPeerSharing);
-
   return (
     <div className="flex flex-col h-full bg-[#030712] text-slate-100 select-none overflow-hidden relative border-l border-white/[0.06]">
       {/* Apple Safari macOS Style Window Header */}
@@ -531,16 +531,14 @@ export function CoBrowseStudio({
           <input
             type="text"
             value={
-              isSharingTab
-                ? `You are broadcasting: ${activeTabName}`
-                : isPeerSharing
-                ? `${sharerName} is broadcasting: ${activeTabName}`
+              isAnyStreamActive
+                ? `📺 Live Stream: ${displaySharerName} · Click on screen to Remote Click`
                 : urlInput
             }
             disabled={isAnyStreamActive}
             onChange={(e) => setUrlInput(e.target.value)}
             placeholder="Search or enter website URL..."
-            className="bg-transparent border-none outline-none w-full text-slate-200 placeholder-slate-500 disabled:opacity-85 font-mono text-[11px]"
+            className="bg-transparent border-none outline-none w-full text-slate-200 placeholder-slate-500 disabled:opacity-90 font-mono text-[11px]"
           />
           {!isAnyStreamActive && (
             <button
@@ -678,13 +676,17 @@ export function CoBrowseStudio({
               className="w-full h-full object-contain bg-black pointer-events-none"
             />
 
-            {/* Subtle floating watermark banner indicating WebRTC status */}
-            <div className="absolute top-3 left-4 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur border border-white/10 text-[10px] text-slate-300 flex items-center gap-1.5 shadow-lg pointer-events-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>
+            {/* Subtle floating watermark banner indicating WebRTC status & Remote Control */}
+            <div className="absolute top-3 left-4 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-xl border border-white/10 text-[11px] text-slate-200 flex items-center gap-2 shadow-2xl pointer-events-none z-20">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-medium">
                 {isSharingTab
-                  ? "Broadcasting Live WebRTC Tab (60 FPS HD)"
-                  : `Watching ${sharerName}'s Live Stream`}
+                  ? "Broadcasting Live Screen (60 FPS HD)"
+                  : `Watching ${displaySharerName}'s Live Screen`}
+              </span>
+              <div className="h-3 w-px bg-white/20" />
+              <span className="text-cyan-400 font-semibold text-[10px] flex items-center gap-1">
+                🎮 Remote Click Active (Click to interact)
               </span>
             </div>
           </div>
