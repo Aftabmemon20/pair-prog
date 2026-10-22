@@ -149,6 +149,118 @@
     console.log(`[Pairio Security Guardrail] Remote peer control revoked: ${reason}`);
   }
 
+  // Remote Synthetic Input Execution (With Security Guardrails)
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "REMOTE_CLICK" && allowControl) {
+      handleRemoteClick(request.data);
+      sendResponse({ status: "executed" });
+    } else if (request.action === "REMOTE_TYPE" && allowControl) {
+      handleRemoteType(request.data);
+      sendResponse({ status: "executed" });
+    }
+  });
+
+  function renderRemoteClickRipple(x, y) {
+    const ripple = document.createElement("div");
+    ripple.style.position = "fixed";
+    ripple.style.left = `${x - 15}px`;
+    ripple.style.top = `${y - 15}px`;
+    ripple.style.width = "30px";
+    ripple.style.height = "30px";
+    ripple.style.borderRadius = "50%";
+    ripple.style.border = "2px solid #06b6d4";
+    ripple.style.backgroundColor = "rgba(6, 182, 212, 0.3)";
+    ripple.style.zIndex = "2147483646";
+    ripple.style.pointerEvents = "none";
+    ripple.style.boxShadow = "0 0 12px #06b6d4";
+    ripple.style.transition = "all 0.6s cubic-bezier(0, 0, 0.2, 1)";
+    ripple.style.transform = "scale(0.8)";
+    ripple.style.opacity = "1";
+
+    const label = document.createElement("div");
+    label.textContent = "Dev B Click";
+    label.style.position = "absolute";
+    label.style.top = "-18px";
+    label.style.left = "50%";
+    label.style.transform = "translateX(-50%)";
+    label.style.fontSize = "10px";
+    label.style.fontWeight = "bold";
+    label.style.color = "#06b6d4";
+    label.style.whiteSpace = "nowrap";
+    ripple.appendChild(label);
+
+    document.body.appendChild(ripple);
+
+    requestAnimationFrame(() => {
+      ripple.style.transform = "scale(1.8)";
+      ripple.style.opacity = "0";
+    });
+
+    setTimeout(() => {
+      ripple.remove();
+    }, 650);
+  }
+
+  function handleRemoteClick(data) {
+    if (!allowControl) return;
+
+    const x = data.xRatio * window.innerWidth;
+    const y = data.yRatio * window.innerHeight;
+
+    renderRemoteClickRipple(x, y);
+
+    const targetEl = document.elementFromPoint(x, y);
+    if (!targetEl) return;
+
+    // Guardrail: Never click password or credential inputs
+    if (targetEl.type === "password" || targetEl.getAttribute("autocomplete") === "current-password") {
+      console.warn("[Pairio Guardrail] Blocked remote click on password field");
+      return;
+    }
+
+    try {
+      // Dispatch synthetic pointer and mouse sequences
+      const mouseEvents = ["pointerdown", "mousedown", "pointerup", "mouseup"];
+      mouseEvents.forEach((type) => {
+        targetEl.dispatchEvent(
+          new MouseEvent(type, {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+            clientX: x,
+            clientY: y,
+          })
+        );
+      });
+
+      if (typeof targetEl.click === "function") {
+        targetEl.click();
+      }
+
+      if (typeof targetEl.focus === "function") {
+        targetEl.focus();
+      }
+    } catch (e) {
+      console.error("[Pairio Guardrail] Remote click execution error:", e);
+    }
+  }
+
+  function handleRemoteType(data) {
+    if (!allowControl || !data.text) return;
+
+    const activeEl = document.activeElement;
+    if (!activeEl) return;
+
+    if (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA") {
+      if (activeEl.type === "password") return;
+      activeEl.value += data.text;
+      activeEl.dispatchEvent(new Event("input", { bubbles: true }));
+      activeEl.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (activeEl.isContentEditable) {
+      document.execCommand("insertText", false, data.text);
+    }
+  }
+
   // Telestrator Drawing Mechanics
   let lastX = 0;
   let lastY = 0;
@@ -183,3 +295,4 @@
     isPointerDown = false;
   }
 })();
+
