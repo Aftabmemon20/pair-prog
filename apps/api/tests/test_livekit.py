@@ -6,7 +6,11 @@ from apps.api.main import app
 from apps.api.services.livekit_service import generate_livekit_token
 
 
-def test_generate_livekit_token_unconfigured():
+def test_generate_livekit_token_unconfigured(monkeypatch):
+    from apps.api.config import settings
+    monkeypatch.setattr(settings, "LIVEKIT_API_KEY", "")
+    monkeypatch.setattr(settings, "LIVEKIT_API_SECRET", "")
+
     res = generate_livekit_token(
         room_id="room_test_123",
         identity="dev_a",

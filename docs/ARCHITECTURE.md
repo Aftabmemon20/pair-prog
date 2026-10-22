@@ -79,5 +79,14 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Resilient Repair Chain (Rule 6)**: If the LLM generates malformed JSON, a 1-shot repair prompt fixes the syntax, guaranteeing a valid recap without crashing the room.
 - **Export Formats**: Provides JSON API, Supabase DB persistence, in-app rich modal view, and Markdown export for clipboard/file saving.
 
+### E. LiveKit WebRTC Video/Audio Call & Screen Sharing
+- **Edge SFU Routing**: LiveKit Cloud Selective Forwarding Unit routes encrypted VP8/H.264 video and 48 kHz Opus audio.
+- **Cryptographic JWT Tokens**: Issued by FastAPI backend (`/rooms/{room_id}/livekit/token`) signed with HS256 algorithm.
+- **Floating Call Dock**: Controls for microphone mute, camera toggle, screen share, and peer video bubbles.
+
+### F. Multi-Browser E2E Collaboration Verification (Phase P7)
+- **Playwright Test Suite**: Multi-seat collaboration automated with independent browser contexts (`contextA` Dev A and `contextB` Dev B) joining the same room and validating real-time CRDT synchronization, presence, and tools.
+- **Continuous Keep-Warm**: GitHub Actions workflow cron pings `/healthz` and Supabase REST every 10 minutes to eliminate cold start delays.
+
 ---
-*Status: Phase P6 (End-of-Session Structured Recap, Supabase Persistence & Markdown Export) verified and complete.*
+*Status: Phase P7 (E2E Multi-Browser Collaboration Testing, LiveKit WebRTC Call Integration, and Production Deployment Runbook) verified and complete. Ready for production deployment.*

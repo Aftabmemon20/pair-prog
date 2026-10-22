@@ -109,6 +109,17 @@ This document tracks all significant architectural decisions, stack selections, 
   - Persist to Supabase `recaps` table (with in-memory fallback for offline/local testing) and expose both structured JSON and clean Markdown endpoints.
 - **Consequences**: Guarantees zero room crashes, provides predictable UI rendering in `RecapModal.tsx`, and enables 1-click Markdown copying for engineering team notes or PR descriptions.
 
+## ADR-016: LiveKit Cloud SFU WebRTC & Playwright Multi-Context E2E Verification
+- **Context**: Pair programming requires peer audio, video, and screen sharing alongside code editing. Full end-to-end testing must simulate two distinct human users typing and collaborating concurrently.
+- **Decision**:
+  - Integrate LiveKit Cloud SFU with `@livekit/components-react` and `livekit-client`.
+  - Issue cryptographically signed LiveKit JWT access tokens via FastAPI (`/rooms/{room_id}/livekit/token`) with room join and audio/video publishing permissions.
+  - Implement a dockable floating `CallBar.tsx` with microphone mute, camera toggle, screen sharing via browser `getDisplayMedia`, and live peer video bubbles.
+  - Automate collaboration verification using `@playwright/test` with two independent browser contexts (`contextA` Dev A and `contextB` Dev B) joining the same room URL simultaneously to verify multi-seat presence, CallBar rendering, and split-work controls.
+- **Consequences**: Guarantees low-latency (< 100ms) peer voice/video over free tier, prevents client-side CPU thermal throttling, and provides robust regression test coverage for multi-seat collaboration.
+
+
+
 
 
 

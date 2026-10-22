@@ -33,21 +33,22 @@ def redact_secrets(text: str) -> str:
     return redacted
 
 
-def truncate_context_tokens(messages: List[Dict[str, str]], max_chars: int = 12000) -> List[Dict[str, str]]:
+def truncate_context_tokens(messages: List[Dict[str, Any]], max_chars: int = 12000) -> List[Dict[str, Any]]:
     """
-    Enforces the ~3K token input budget by truncating oversized message payloads.
-    (Rough approximation: 1 token ~ 4 characters).
+    Enforces the ~3K token input budget by truncating oversized message payloads
+    while preserving tool_calls, tool_call_id, and other OpenAI-compatible message keys.
     """
-    cleaned: List[Dict[str, str]] = []
-    current_chars = 0
+    cleaned: List[Dict[str, Any]] = []
 
-    # Always keep system message and the latest user message
     for msg in messages:
-        content = redact_secrets(msg.get("content", ""))
-        if len(content) > max_chars:
-            content = content[:max_chars] + "\n...[Context truncated to preserve token budget]..."
-        current_chars += len(content)
-        cleaned.append({"role": msg["role"], "content": content})
+        new_msg = dict(msg)
+        raw_content = msg.get("content")
+        if raw_content is not None:
+            content = redact_secrets(str(raw_content))
+            if len(content) > max_chars:
+                content = content[:max_chars] + "\n...[Context truncated to preserve token budget]..."
+            new_msg["content"] = content
+        cleaned.append(new_msg)
 
     return cleaned
 
