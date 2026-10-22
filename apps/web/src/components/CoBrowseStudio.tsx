@@ -466,17 +466,40 @@ export function CoBrowseStudio({
             className="w-full h-full object-contain bg-black pointer-events-none"
           />
         ) : (
-          // Interactive Webview Frame
+          // Interactive Webview Frame or Blocked Domain Guidance
           <div className="w-full h-full flex flex-col items-center justify-center relative">
-            <iframe
-              key={iframeKey}
-              src={currentUrl}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              className="w-full h-full border-none bg-white"
-              title="Co-Browse Web Frame"
-            />
+            {/youtube\.com|google\.com|twitter\.com|x\.com|github\.com/i.test(currentUrl) ? (
+              <div className="flex flex-col items-center justify-center p-6 text-center max-w-sm bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-md">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3">
+                  <MonitorPlay className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-100 mb-1">WebRTC Screen Stream Active</h3>
+                <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                  YouTube security headers (<code className="text-amber-300 font-mono text-[10px]">X-Frame-Options</code>) block static iframes.
+                </p>
+                <div className="flex flex-col gap-2 w-full text-left text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                    <span>Chrome is streaming YouTube at 60 FPS!</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                    <span>Use Telestrator (✏️) to annotate over it!</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <iframe
+                key={iframeKey}
+                src={currentUrl}
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                className="w-full h-full border-none bg-white"
+                title="Co-Browse Web Frame"
+              />
+            )}
           </div>
         )}
+
 
         {/* Visual Remote Click Ripple */}
         {remoteRipple && (
