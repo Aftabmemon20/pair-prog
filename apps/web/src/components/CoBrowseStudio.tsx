@@ -133,10 +133,35 @@ export function CoBrowseStudio({
     }
   };
 
+  // Listen for extension auto-sync events from the active tab
+  useEffect(() => {
+    const handleExtensionMessage = (e: MessageEvent) => {
+      if (e.data && e.data.action === "AUTO_SYNC_SHARED_URL" && e.data.url) {
+        updateSharedUrl(e.data.url);
+      }
+    };
+    window.addEventListener("message", handleExtensionMessage);
 
+    const runtimeListener = (msg: any) => {
+      if (msg && msg.action === "AUTO_SYNC_SHARED_URL" && msg.url) {
+        updateSharedUrl(msg.url);
+      }
+    };
+    if (typeof window !== "undefined" && (window as any).chrome?.runtime?.onMessage) {
+      (window as any).chrome.runtime.onMessage.addListener(runtimeListener);
+    }
+
+    return () => {
+      window.removeEventListener("message", handleExtensionMessage);
+      if (typeof window !== "undefined" && (window as any).chrome?.runtime?.onMessage) {
+        (window as any).chrome.runtime.onMessage.removeListener(runtimeListener);
+      }
+    };
+  }, []);
 
   // Yjs Remote Click Synchronization (Dev B -> Dev A)
   const [remoteRipple, setRemoteRipple] = useState<{ x: number; y: number; sender: string } | null>(null);
+
 
   useEffect(() => {
     if (!ydoc) return;

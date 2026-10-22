@@ -49,6 +49,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // Auto-sync the current tab URL to the open Pairio room so Dev B's screen automatically loads it
+    try {
+      chrome.tabs.query({}, (tabs) => {
+        const pairioTab = tabs.find((t) => t.url && (t.url.includes("pair-prog") || t.url.includes("localhost")));
+        if (pairioTab && pairioTab.id && tab.url) {
+          chrome.tabs.sendMessage(pairioTab.id, {
+            action: "AUTO_SYNC_SHARED_URL",
+            url: tab.url,
+            title: tab.title || "Active Tab",
+          });
+        }
+      });
+    } catch {
+      // Non-blocking
+    }
+
     // Send activation message to content script
     try {
       chrome.tabs.sendMessage(
@@ -74,3 +90,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
