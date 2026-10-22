@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Pairio-Lite Co-Pilot",
+  "version": "1.0.0",
+  "description": "Collaborative in-tab telestrator and secure scoped co-browsing for Pairio",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Pairio Co-Pilot"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

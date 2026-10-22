@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Pairio Co-Pilot</title>
+  <style>
+    body {
+      width: 280px;
+      margin: 0;
+      padding: 16px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .logo-badge {
+      background: #10b981;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .field {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+      outline: none;
+    }
+    input[type="text"]:focus {
+      border-color: #10b981;
+    }
+    .guardrail-card {
+      background: #1e1b4b;
+      border: 1px solid #4338ca;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 14px;
+    }
+    .guardrail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .guardrail-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #c7d2fe;
+    }
+    .guardrail-desc {
+      font-size: 10px;
+      color: #a5b4fc;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 28px;
+      height: 16px;
+    }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #475569;
+      transition: .2s;
+      border-radius: 16px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #10b981;
+    }
+    input:checked + .slider:before {
+      transform: translateX(12px);
+    }
+    .btn {
+      width: 100%;
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover {
+      background: #059669;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 11px;
+      text-align: center;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="logo-badge">PAIRIO</span>
+    <span class="title">Co-Pilot Lite</span>
+  </div>
+
+  <div class="field">
+    <label for="roomIdInput">Pairio Room ID</label>
+    <input type="text" id="roomIdInput" placeholder="e.g. 57a8-4421">
+  </div>
+
+  <!-- Security Guardrail Card -->
+  <div class="guardrail-card">
+    <div class="guardrail-header">
+      <span class="guardrail-title">Allow Peer Control</span>
+      <label class="toggle">
+        <input type="checkbox" id="allowControlToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="guardrail-desc">
+      Scoped strictly to active tab. Host can panic revoke anytime with Esc key.
+    </div>
+  </div>
+
+  <button class="btn" id="injectBtn">Launch In-Tab Toolbar</button>
+  <div class="status" id="statusText">Ready to attach</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

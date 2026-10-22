@@ -1,0 +1,121 @@
+/* Pairio-Lite Injected Styles */
+
+#pairio-overlay-canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483640 !important;
+  pointer-events: none;
+}
+
+#pairio-overlay-canvas.pairio-drawing-active {
+  pointer-events: auto !important;
+  cursor: crosshair !important;
+}
+
+/* Floating Host Toolbar */
+#pairio-floating-bar {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  padding: 8px 12px !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: #f8fafc !important;
+  user-select: none !important;
+}
+
+.pairio-badge {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.pairio-btn {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+  padding: 5px 10px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: all 0.15s ease !important;
+}
+
+.pairio-btn:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+.pairio-btn.active {
+  background: #f43f5e !important;
+  color: #ffffff !important;
+  border-color: #fb7185 !important;
+}
+
+.pairio-color-dot {
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  border: 2px solid transparent !important;
+}
+
+.pairio-color-dot.selected {
+  border-color: #ffffff !important;
+  transform: scale(1.15) !important;
+}
+
+/* Guardrail Remote Control Alert Banner */
+#pairio-guardrail-banner {
+  position: fixed !important;
+  top: 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: rgba(136, 19, 55, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid #f43f5e !important;
+  color: #fff1f2 !important;
+  padding: 6px 16px !important;
+  border-radius: 9999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.pairio-panic-btn {
+  background: #ffffff !important;
+  color: #9f1239 !important;
+  border: none !important;
+  padding: 3px 8px !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
