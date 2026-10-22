@@ -118,8 +118,12 @@ This document tracks all significant architectural decisions, stack selections, 
   - Automate collaboration verification using `@playwright/test` with two independent browser contexts (`contextA` Dev A and `contextB` Dev B) joining the same room URL simultaneously to verify multi-seat presence, CallBar rendering, and split-work controls.
 - **Consequences**: Guarantees low-latency (< 100ms) peer voice/video over free tier, prevents client-side CPU thermal throttling, and provides robust regression test coverage for multi-seat collaboration.
 
-
-
-
-
-
+## ADR-017: Co-Browse Studio with Live Tab Casting & Telestrator Overlay
+- **Context**: Real-world pair programming frequently involves consulting external documentation, debugging web apps, inspecting API responses, or referencing external browser tabs. Traditional screen-share forces users into a passive watching mode without interactive markup or AI assistance.
+- **Decision**:
+  - Implement `CoBrowseStudio.tsx` with a dual-engine architecture:
+    1. **Live Tab Casting**: Uses browser standard `navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'browser' } })` to mirror a selected Chrome tab (e.g. YouTube, Google Docs, Localhost) into the room at 60 FPS without installing server-side headless browsers.
+    2. **Interactive Webview**: Renders sandboxed interactive frames for quick reference to Python/FastAPI/LiveKit docs.
+  - Layer a transparent **Synchronized Telestrator Overlay** on top of the tab using `perfect-freehand` backed by a Yjs shared array (`tab_freehand_strokes`). Dev A can circle UI elements or draw arrows on the live tab, and Dev B sees the markings in real time.
+  - Provide a one-click **"Inspect with Seat 3"** button that sends tab context and Monaco editor code to the Pair Master AI to analyze the UI flow against the Python codebase.
+- **Consequences**: Zero server compute overhead on Render free tier, ultra-low latency, and enables active visual collaboration over external tabs.

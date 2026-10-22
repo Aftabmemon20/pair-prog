@@ -84,9 +84,17 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
 - **Cryptographic JWT Tokens**: Issued by FastAPI backend (`/rooms/{room_id}/livekit/token`) signed with HS256 algorithm.
 - **Floating Call Dock**: Controls for microphone mute, camera toggle, screen share, and peer video bubbles.
 
-### F. Multi-Browser E2E Collaboration Verification (Phase P7)
-- **Playwright Test Suite**: Multi-seat collaboration automated with independent browser contexts (`contextA` Dev A and `contextB` Dev B) joining the same room and validating real-time CRDT synchronization, presence, and tools.
-- **Continuous Keep-Warm**: GitHub Actions workflow cron pings `/healthz` and Supabase REST every 10 minutes to eliminate cold start delays.
+### G. Co-Browse Studio & Synchronized Telestrator
+- **Dual-Engine Display**:
+  - **Live Browser Tab Casting**: Direct capture of any open Chrome tab (YouTube, Google Docs, Localhost, Jira) using native `getDisplayMedia` at 60 FPS.
+  - **Interactive Webview**: Embedded sandboxed iframe for direct in-room documentation lookup (Python Docs, FastAPI, LiveKit).
+- **Synchronized Telestrator**:
+  - Transparent vector SVG overlay powered by `perfect-freehand` with dynamic calligraphic pressure.
+  - Synchronized across peers via Yjs shared array `tab_freehand_strokes`.
+  - Multi-color palette (Electric Red, Neon Cyan, Emerald, Amber) and one-click eraser.
+- **Seat 3 AI Tab Inspection**:
+  - One-click trigger captures current tab context alongside active Monaco editor code.
+  - Prompts Pair Master agent to analyze the user-facing web workflow against the backend Python implementation, identify bugs, and produce architectural diagrams.
 
 ---
-*Status: Phase P7 (E2E Multi-Browser Collaboration Testing, LiveKit WebRTC Call Integration, and Production Deployment Runbook) verified and complete. Ready for production deployment.*
+*Status: Production deployment finalized with Co-Browse Studio, multi-seat LiveKit WebRTC, and Yjs CRDT synchronization.*
