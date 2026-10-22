@@ -127,3 +127,24 @@ This document tracks all significant architectural decisions, stack selections, 
   - Layer a transparent **Synchronized Telestrator Overlay** on top of the tab using `perfect-freehand` backed by a Yjs shared array (`tab_freehand_strokes`). Dev A can circle UI elements or draw arrows on the live tab, and Dev B sees the markings in real time.
   - Provide a one-click **"Inspect with Seat 3"** button that sends tab context and Monaco editor code to the Pair Master AI to analyze the UI flow against the Python codebase.
 - **Consequences**: Zero server compute overhead on Render free tier, ultra-low latency, and enables active visual collaboration over external tabs.
+
+## ADR-018: P2P WebRTC Tab & Screen Streaming via Yjs Signaling
+- **Context**: Tab casting previously only existed in local browser state (`streamRef.current`), preventing peer Dev B from receiving the video stream unless external LiveKit servers were provisioned. Furthermore, React timing races caused black frames upon mounting.
+- **Decision**:
+  - Implement direct P2P WebRTC streaming between Dev A and Dev B using public STUN (`stun:stun.l.google.com:19302`) and Yjs CRDT shared maps for SDP offer/answer signaling.
+  - Employ a dynamic callback ref on `<video>` so `srcObject` is assigned and `play()` is triggered immediately upon DOM mounting, eliminating black frames.
+  - When tab casting is active, Dev B's browser automatically switches to receive the 60 FPS video stream.
+  - When casting stops, both browsers seamlessly revert to the synchronized interactive webview.
+- **Consequences**: Fully decentralized, zero-latency 60 FPS screen/tab broadcasting between peers with zero paid server dependencies.
+
+## ADR-019: Apple macOS Composer & Segmented Workspace Aesthetic
+- **Context**: Panel layout congestion previously squeezed Monaco editor to an unreadable width when both Co-Browse and Timeline panels were open simultaneously. Sub-header controls were crowded with conflicting color palettes.
+- **Decision**:
+  - Upgrade the design system to Apple space-gray minimalism (`#030712`, glassmorphism `backdrop-blur-2xl`, borders `border-white/[0.08]`).
+  - Introduce an Apple macOS Segmented Workspace Control in `PresenceBar`:
+    - `[ 💻 Code ]`: 100% full-width focus on Monaco Editor.
+    - `[ ⚡ Split Studio ]`: 50/50 side-by-side view of code and browser tab.
+    - `[ 🌐 Co-Browse ]`: 100% full-width focus on browser tab, webview, and telestrator.
+  - Redesign `TimelinePanel` into an **Apple Intelligence / Cursor Composer** style drawer with quick prompt capsules, glowing AI status pills, and translucent message cards.
+  - Redesign `CoBrowseStudio` into a macOS Safari window with traffic lights (`🔴 🟡 🟢`), frosted URL capsule, and floating Apple Pencil telestrator palette.
+- **Consequences**: High-end aesthetic wow-factor, zero panel crowding, and effortless toggling between code focus and research focus.
