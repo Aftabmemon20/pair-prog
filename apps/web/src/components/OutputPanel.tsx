@@ -62,29 +62,29 @@ export function OutputPanel({
 
   if (!runResult && symbols.length === 0 && !liveDiagramSrc && !diagramSrc) {
     return (
-      <div className="h-10 border-t border-slate-800 bg-slate-900/80 px-4 flex items-center justify-between text-xs text-slate-500">
+      <div className="h-9 border-t border-white/[0.08] bg-slate-900/80 backdrop-blur-xl px-4 flex items-center justify-between text-xs text-slate-400 select-none">
         <div className="flex items-center gap-2">
-          <Terminal className="w-3.5 h-3.5" />
-          <span>Output & Diagnostics</span>
+          <Terminal className="w-3.5 h-3.5 text-sky-400" />
+          <span className="font-medium text-slate-300">Diagnostics & Output</span>
         </div>
-        <span className="text-[11px] text-slate-600">Click &quot;Run&quot; or press Ctrl+Enter</span>
+        <span className="text-[11px] text-slate-500 font-mono">Press Ctrl+Enter to run in Pyodide sandbox</span>
       </div>
     );
   }
 
   return (
-    <div className={`border-t border-slate-800 bg-slate-900/95 flex flex-col transition-all duration-200 ${
+    <div className={`border-t border-white/[0.08] bg-slate-900/90 backdrop-blur-2xl flex flex-col transition-all duration-200 ${
       collapsed ? "h-10" : "h-64 sm:h-72"
     }`}>
       {/* Panel Header */}
-      <div className="h-10 px-3 bg-slate-900 border-b border-slate-800/80 flex items-center justify-between text-xs select-none">
+      <div className="h-10 px-3 bg-slate-950/70 border-b border-white/[0.08] flex items-center justify-between text-xs select-none">
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setActiveTab("terminal")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-medium transition ${
               activeTab === "terminal"
-                ? "bg-slate-800 text-slate-100 shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-slate-800 text-white shadow-sm border border-white/10"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-850"
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />

@@ -200,6 +200,9 @@ export default function RoomPage() {
     }
   }, [isRunning, currentUser, roomId]);
 
+  // Apple Workspace Mode: "code" (full editor), "split" (50/50), "cobrowse" (full browser studio)
+  const [workspaceMode, setWorkspaceMode] = useState<"code" | "split" | "cobrowse">("split");
+
   const handleSelectLine = (line: number) => {
     if (editorRef.current) {
       editorRef.current.jumpToLine(line);
@@ -207,8 +210,13 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 select-none">
-      <PresenceBar onOpenRecap={() => setIsRecapOpen(true)} />
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#030712] select-none text-slate-100 font-sans">
+      {/* Apple-Grade Header Presence Bar */}
+      <PresenceBar
+        workspaceMode={workspaceMode}
+        onSetWorkspaceMode={setWorkspaceMode}
+        onOpenRecap={() => setIsRecapOpen(true)}
+      />
       <JoinModal roomId={roomId} />
       <RecapModal
         roomId={roomId}
@@ -216,15 +224,15 @@ export default function RoomPage() {
         onClose={() => setIsRecapOpen(false)}
       />
 
-      {/* Editor Sub-Header Toolbar */}
-      <div className="h-10 bg-slate-900/90 border-b border-slate-800 px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* Run Button */}
+      {/* Sleek Apple-Style Sub-Header Command Bar */}
+      <div className="h-11 bg-slate-900/80 backdrop-blur-xl border-b border-white/[0.08] px-4 flex items-center justify-between z-20 shrink-0">
+        <div className="flex items-center gap-2.5">
+          {/* Primary Run Button */}
           <button
             onClick={handleRun}
             disabled={isRunning || !currentUser}
-            className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-semibold text-xs rounded-md shadow-sm shadow-emerald-600/20 transition group"
-            title="Run Code in Pyodide Sandbox (Ctrl+Enter)"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 disabled:opacity-50 text-white font-medium text-xs rounded-full shadow-lg shadow-emerald-500/20 transition group border border-emerald-400/30"
+            title="Execute Python Code in Pyodide Sandbox (Ctrl+Enter)"
           >
             {isRunning ? (
               <>
@@ -233,33 +241,33 @@ export default function RoomPage() {
               </>
             ) : (
               <>
-                <Play className="w-3.5 h-3.5 fill-white" />
+                <Play className="w-3 h-3 fill-white" />
                 <span>Run</span>
-                <span className="text-[10px] text-emerald-200/80 font-normal ml-0.5 hidden sm:inline">
-                  (Ctrl+Enter)
+                <span className="text-[10px] text-emerald-200/90 font-mono ml-0.5 hidden sm:inline">
+                  Ctrl+↵
                 </span>
               </>
             )}
           </button>
 
-          {/* Pyodide Engine Status */}
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] text-slate-400 bg-slate-800/60 border border-slate-700/40">
+          {/* Pyodide Engine Status Capsule */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] text-slate-300 bg-slate-950/80 border border-white/[0.08] shadow-inner font-medium">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
                 pyodideStatus === "ready"
-                  ? "bg-emerald-400"
+                  ? "bg-emerald-400 shadow-sm shadow-emerald-400"
                   : pyodideStatus === "loading"
                   ? "bg-amber-400 animate-pulse"
                   : "bg-slate-500"
               }`}
             />
-            <span className="hidden sm:inline">Python 3.12 (Pyodide):</span>
-            <span className="font-mono text-slate-300">
+            <span className="hidden sm:inline text-slate-400">Python 3.12:</span>
+            <span className="font-mono text-slate-200">
               {pyodideStatus === "ready" ? "Sandbox Ready" : pyodideStatus === "loading" ? "Preloading..." : pyodideStatus}
             </span>
           </div>
 
-          <div className="h-4 w-px bg-slate-800 mx-1 hidden sm:block" />
+          <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block" />
 
           {/* Voice Push-to-Talk (Groq Whisper Turbo) */}
           <VoiceButton
@@ -267,19 +275,19 @@ export default function RoomPage() {
             onSpeechTranscribed={() => setIsTimelineOpen(true)}
           />
 
-          {/* Collaborative Drawing Tool (perfect-freehand) */}
+          {/* Telestrator Drawing Tool (Draw on Code) */}
           <div className="flex items-center gap-1">
             <button
               onClick={() => setIsDrawingMode(!isDrawingMode)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border font-medium transition ${
+              className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition ${
                 isDrawingMode
-                  ? "bg-emerald-950/80 border-emerald-500 text-emerald-200 ring-2 ring-emerald-500/20"
-                  : "bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/60 text-slate-300 hover:text-slate-100"
+                  ? "bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-2 ring-rose-500/20"
+                  : "bg-slate-950/80 hover:bg-slate-900 border-white/[0.08] text-slate-300 hover:text-white"
               }`}
-              title="Toggle Collaborative Freehand Drawing (Draw on Code)"
+              title="Toggle Telestrator Drawing (Draw on Code Editor)"
             >
-              <PenTool className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Draw</span>
+              <PenTool className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">Draw Code</span>
             </button>
 
             {isDrawingMode && (
@@ -291,8 +299,8 @@ export default function RoomPage() {
                     arr.delete(0, arr.length);
                   }
                 }}
-                className="p-1 text-slate-400 hover:text-rose-300 hover:bg-slate-800 rounded transition"
-                title="Clear all drawings on screen"
+                className="p-1 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-full transition"
+                title="Clear code markings"
               >
                 <Eraser className="w-3.5 h-3.5" />
               </button>
@@ -300,43 +308,14 @@ export default function RoomPage() {
           </div>
         </div>
 
-        {/* Right side facilitator button, co-browse toggle & timeline toggle */}
+        {/* Right side: Split Work & Pair Master Facilitator */}
         <div className="flex items-center gap-2">
-          {/* Co-Browse Tab Studio Button */}
-          <button
-            onClick={() => setIsCoBrowseOpen(!isCoBrowseOpen)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition ${
-              isCoBrowseOpen
-                ? "bg-teal-950/80 border-teal-500 text-teal-200 ring-2 ring-teal-500/20 shadow-sm"
-                : "bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/60 text-slate-300 hover:text-slate-100"
-            }`}
-            title="Toggle Co-Browse Studio (Share & Annotate Browser Tabs)"
-          >
-            <Globe className="w-3.5 h-3.5 text-teal-400" />
-            <span className="hidden sm:inline">Co-Browse Tab</span>
-            {isCoBrowseOpen && (
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setIsTimelineOpen(!isTimelineOpen)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border transition ${
-              isTimelineOpen
-                ? "bg-purple-900/60 border-purple-700/80 text-purple-200 shadow-sm"
-                : "bg-slate-800/60 border-slate-700/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800"
-            }`}
-            title="Toggle Pair Master AI Facilitator Timeline"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span className="hidden sm:inline">Pair Master</span>
-          </button>
-
+          {/* Split Work Button */}
           <button
             onClick={handleSplitWork}
             disabled={isSplitting}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-purple-200 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-700/80 rounded-md shadow-sm transition disabled:opacity-50"
-            title="Partition code ownership between Dev A and Dev B"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs text-purple-200 bg-purple-950/50 hover:bg-purple-900/70 border border-purple-500/30 rounded-full shadow-sm transition disabled:opacity-50 font-medium"
+            title="Partition AST code ownership between Dev A and Dev B"
           >
             {isSplitting ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
@@ -345,8 +324,23 @@ export default function RoomPage() {
             )}
             <span className="hidden sm:inline">Split Work</span>
             {ownership.length > 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm" />
             )}
+          </button>
+
+          {/* Pair Master Timeline Toggle */}
+          <button
+            onClick={() => setIsTimelineOpen(!isTimelineOpen)}
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border transition font-medium ${
+              isTimelineOpen
+                ? "bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30"
+                : "bg-slate-950/80 hover:bg-slate-900 border-white/[0.08] text-slate-300 hover:text-white"
+            }`}
+            title="Toggle Pair Master AI Facilitator Composer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+            <span className="hidden sm:inline">Pair Master</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
           </button>
         </div>
       </div>
@@ -356,8 +350,16 @@ export default function RoomPage() {
         {/* Editor on top, Output Panel on bottom */}
         <main className="flex-1 flex flex-col relative overflow-hidden">
           <div className="flex-1 flex overflow-hidden relative">
-            {/* Monaco Editor Container */}
-            <div className={`h-full relative overflow-hidden transition-all duration-200 ${isCoBrowseOpen ? "w-1/2 border-r border-slate-800" : "w-full"}`}>
+            {/* Monaco Editor Container (Apple Segmented View) */}
+            <div
+              className={`h-full relative overflow-hidden transition-all duration-300 ease-in-out ${
+                workspaceMode === "code"
+                  ? "w-full"
+                  : workspaceMode === "split"
+                  ? "w-1/2 border-r border-white/[0.08]"
+                  : "w-0 hidden"
+              }`}
+            >
               <CollaborativeEditor
                 ref={editorRef}
                 roomId={roomId}
@@ -369,9 +371,13 @@ export default function RoomPage() {
               />
             </div>
 
-            {/* Co-Browse Tab Studio Panel */}
-            {isCoBrowseOpen && (
-              <div className="w-1/2 h-full flex flex-col relative overflow-hidden">
+            {/* Co-Browse Tab Studio Panel (Apple Segmented View) */}
+            {workspaceMode !== "code" && (
+              <div
+                className={`h-full flex flex-col relative overflow-hidden transition-all duration-300 ease-in-out ${
+                  workspaceMode === "cobrowse" ? "w-full" : "w-1/2"
+                }`}
+              >
                 <CoBrowseStudio
                   roomId={roomId}
                   ydoc={editorRef.current?.getYDoc()}
@@ -379,7 +385,7 @@ export default function RoomPage() {
                     setIsTimelineOpen(true);
                     setPendingAgentPrompt(prompt);
                   }}
-                  onClose={() => setIsCoBrowseOpen(false)}
+                  onClose={() => setWorkspaceMode("code")}
                 />
               </div>
             )}
@@ -399,7 +405,7 @@ export default function RoomPage() {
           />
         </main>
 
-        {/* Pair Master Timeline Panel */}
+        {/* Pair Master Timeline Panel (Apple Intelligence Composer Drawer) */}
         <TimelinePanel
           isOpen={isTimelineOpen}
           onClose={() => setIsTimelineOpen(false)}
@@ -414,3 +420,4 @@ export default function RoomPage() {
     </div>
   );
 }
+
