@@ -1,3 +1,14 @@
+import sys
+from pathlib import Path
+
+# Add project root and apps/api directory to sys.path so 'apps.api.*' imports resolve on Render/cloud
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+API_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+if str(API_DIR) not in sys.path:
+    sys.path.insert(0, str(API_DIR))
+
 import time
 import uuid
 from contextlib import asynccontextmanager
