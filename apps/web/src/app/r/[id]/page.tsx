@@ -31,8 +31,8 @@ export default function RoomPage() {
   const [ownership, setOwnership] = useState<OwnershipItem[]>([]);
   const [diagramSrc, setDiagramSrc] = useState<string | undefined>(undefined);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const [isCoBrowseOpen, setIsCoBrowseOpen] = useState(false);
   const [isRecapOpen, setIsRecapOpen] = useState(false);
+  const [activeFileName, setActiveFileName] = useState<string>("inventory.py");
 
   // Restore session if available
   useEffect(() => {
@@ -178,6 +178,9 @@ export default function RoomPage() {
     const code = editorRef.current.getCode();
     if (!code.trim()) return;
 
+    const currentFile = editorRef.current.getActiveFileName ? editorRef.current.getActiveFileName() : "inventory.py";
+    setActiveFileName(currentFile);
+
     setIsRunning(true);
     try {
       const result = await pyodideRunner.runCode(code, currentUser.name, roomId);
@@ -210,7 +213,7 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#030712] select-none text-slate-100 font-sans">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#030712] ambient-mesh-glow select-none text-slate-100 font-sans">
       {/* Apple-Grade Header Presence Bar */}
       <PresenceBar
         workspaceMode={workspaceMode}
@@ -402,6 +405,7 @@ export default function RoomPage() {
             }}
             onAnalyzeFailure={handleAnalyzeFailure}
             diagramSrc={diagramSrc}
+            activeFileName={activeFileName}
           />
         </main>
 

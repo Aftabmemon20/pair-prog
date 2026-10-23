@@ -148,3 +148,14 @@ This document tracks all significant architectural decisions, stack selections, 
   - Redesign `TimelinePanel` into an **Apple Intelligence / Cursor Composer** style drawer with quick prompt capsules, glowing AI status pills, and translucent message cards.
   - Redesign `CoBrowseStudio` into a macOS Safari window with traffic lights (`🔴 🟡 🟢`), frosted URL capsule, and floating Apple Pencil telestrator palette.
 - **Consequences**: High-end aesthetic wow-factor, zero panel crowding, and effortless toggling between code focus and research focus.
+
+## ADR-020: Multi-File Project Explorer, Local Folder Ingestion & Ambient Breathing UI
+- **Context**: The editor was previously restricted to a single hardcoded `inventory.py` file without project navigation, folder access, or multi-tab editing. Furthermore, the UI looked flat and dark instead of modern, alive, and breathing.
+- **Decision**:
+  - Implement a collapsible **Project Explorer Sidebar** (VS Code / Zed inspired) with multi-file project navigation (`inventory.py`, `models.py`, `pricing.py`, `test_pipeline.py`).
+  - Add native folder ingestion via `window.showDirectoryPicker()` (File System Access API) with fallback to hidden `<input type="file" webkitdirectory />`, allowing users to open any local folder and edit/execute their files in the browser.
+  - Implement an **Interactive Tab Bar** with dynamic Yjs CRDT binding: `inventory.py` maintains live multi-seat CRDT synchronization across peers, while secondary/opened files switch buffer content in Monaco cleanly without polluting the shared Yjs text.
+  - Enable **In-Browser Pyodide Execution of Any Active File**: `editorRef.current.getCode()` executes whatever file is active in Monaco directly in the Web Worker sandbox, outputting `$ python <filename>` diagnostics in the terminal.
+  - Upgrade the entire aesthetic to an **Apple-grade Breathing Ambient UI** using mesh radial gradients (`ambient-mesh-glow`), living glowing indicator dots, frosted glass tokens (`apple-glass-card`), and ultra-thin custom scrollbars, avoiding flat dead black while preserving 100% of underlying features.
+- **Consequences**: First-class IDE capabilities, custom folder opening, multi-tab Python development, and a visually stunning "breathing" developer experience.
+

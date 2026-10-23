@@ -19,6 +19,8 @@ This document tracks known omissions, planned architectural evolutions, and stub
 - **Demo Language Support**:
   - *Current Prototype*: Python only (via client-side Pyodide Web Worker and server-side `ast` parsing).
   - *Future Work*: TypeScript/JavaScript via WebContainer / QuickJS; Rust/Go language servers.
+- **Local Folder Ingestion Scope**:
+  - *Current Prototype*: Files loaded via `window.showDirectoryPicker` are ingested into in-memory browser workspace state for live editing and sandbox execution. Only the shared `inventory.py` root file syncs bidirectionally via Yjs CRDT over the network.
 - **Concurrency & Room Limits**:
   - Prototype hard-caps at 2 human participants + 1 AI agent per room.
 

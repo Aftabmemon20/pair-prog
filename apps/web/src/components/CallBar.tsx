@@ -288,7 +288,7 @@ export function CallBar({ roomId }: CallBarProps) {
       )}
 
       {/* Floating Call Control Dock */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-slate-900/95 backdrop-blur-md border border-slate-800/90 rounded-2xl shadow-xl ring-1 ring-white/5">
+      <div className="flex items-center gap-1.5 p-1.5 bg-[#090e21]/80 backdrop-blur-2xl border border-white/[0.12] rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
         {!isInCall ? (
           /* Start Call Button */
           <button

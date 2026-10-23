@@ -96,5 +96,20 @@ Pairio-Lite is a collaborative browser-based pair programming prototype designed
   - One-click trigger captures current tab context alongside active Monaco editor code.
   - Prompts Pair Master agent to analyze the user-facing web workflow against the backend Python implementation, identify bugs, and produce architectural diagrams.
 
+### H. Multi-File Project Explorer & Ambient Breathing UI
+- **Project Explorer & Local Folder Ingestion**:
+  - Collapsible sidebar (`apps/web/src/components/CollaborativeEditor.tsx`) offering a full project file tree.
+  - Native local folder ingestion via `window.showDirectoryPicker()` (File System Access API) + fallback directory file input, letting users open their own project folders directly in the browser.
+  - Inline "New File" creation and dynamic tab bar with close tabs (`✕`) and active tab highlights.
+- **Dynamic Yjs CRDT vs. Local File Buffering**:
+  - `inventory.py` maintains live multi-seat CRDT synchronization across peers via `y-monaco` `MonacoBinding`.
+  - Switching to other project files smoothly unbinds CRDT to avoid polluting the shared text, swapping in the target buffer while preserving local modifications.
+- **Any-File In-Browser Pyodide Execution**:
+  - `editorRef.current.getCode()` extracts the active Monaco model text dynamically.
+  - The Pyodide WebWorker executes the currently selected file with a 5-second hard timeout and warm spare worker promotion, outputting `$ python <activeFileName>` terminal diagnostics.
+- **Breathing Ambient Design System**:
+  - Mesh radial glow keyframes (`ambient-mesh-glow`), frosted glass tokens (`apple-glass`, `apple-glass-card`), and glowing active indicators across header, command bar, editor tabs, terminal diagnostics, and modals, eliminating dead flat black while maintaining high contrast and zero clutter.
+
 ---
-*Status: Production deployment finalized with Co-Browse Studio, multi-seat LiveKit WebRTC, and Yjs CRDT synchronization.*
+*Status: Production deployment finalized with Multi-File Project Explorer, Co-Browse Studio, multi-seat LiveKit WebRTC, and Yjs CRDT synchronization.*
+

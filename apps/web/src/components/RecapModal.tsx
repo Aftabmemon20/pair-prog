@@ -84,18 +84,18 @@ export function RecapModal({ roomId, isOpen, onClose }: RecapModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="bg-[#090d1e]/90 backdrop-blur-2xl border border-white/[0.12] rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-[0_24px_60px_rgba(0,0,0,0.8)] overflow-hidden ring-1 ring-white/10">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-purple-600/20">
+        <div className="px-6 py-4.5 border-b border-white/[0.08] flex items-center justify-between bg-[#0a0f22]/70">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-purple-600/30">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                 Pairio-Lite Session Recap
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-purple-300 border border-slate-700/60 font-normal">
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-purple-950/60 text-purple-300 border border-purple-500/30 font-normal">
                   room: {roomId}
                 </span>
               </h2>
@@ -107,7 +107,7 @@ export function RecapModal({ roomId, isOpen, onClose }: RecapModalProps) {
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-white/[0.08] rounded-xl transition"
           >
             <X className="w-4 h-4" />
           </button>

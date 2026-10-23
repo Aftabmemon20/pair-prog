@@ -32,18 +32,18 @@ export function PresenceBar({
   const peer = participants.find((p) => p.role === "peer") || (currentUser?.role === "peer" ? currentUser : null);
 
   return (
-    <header className="h-14 border-b border-white/[0.08] bg-[#090d16]/90 backdrop-blur-2xl px-4 flex items-center justify-between select-none z-30">
+    <header className="h-14 border-b border-white/[0.08] bg-[#090e1f]/75 backdrop-blur-2xl px-4 flex items-center justify-between select-none z-30 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
       {/* Left: Brand & Room Tag */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-sky-500 flex items-center justify-center font-bold text-white text-xs shadow-lg shadow-purple-500/25 ring-1 ring-white/20">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-sky-400 flex items-center justify-center font-bold text-white text-xs shadow-lg shadow-purple-500/30 ring-1 ring-white/25">
             P
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-xs tracking-tight text-white leading-none">
               Pairio-Lite
             </span>
-            <span className="text-[10px] text-slate-400 font-mono mt-0.5">Pair Master</span>
+            <span className="text-[10px] text-slate-400 font-mono mt-0.5">Pair Master Studio</span>
           </div>
         </div>
 
@@ -52,7 +52,7 @@ export function PresenceBar({
         {/* Room Code Pill */}
         <button
           onClick={handleCopyLink}
-          className="flex items-center gap-1.5 px-3 py-1 text-xs font-mono bg-slate-900/90 hover:bg-slate-850 text-slate-200 rounded-full border border-white/[0.08] transition shadow-sm group"
+          className="flex items-center gap-1.5 px-3 py-1 text-xs font-mono bg-slate-900/80 hover:bg-slate-800 text-slate-200 rounded-full border border-white/[0.08] transition shadow-sm group"
           title="Click to copy invite link"
         >
           <span className="text-slate-500 text-[11px]">room:</span>
@@ -64,16 +64,16 @@ export function PresenceBar({
           )}
         </button>
 
-        {/* Live Status Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/80 border border-white/[0.06] text-[11px] font-medium text-slate-300">
+        {/* Live Status Indicator with breathing pulse */}
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/60 border border-white/[0.06] text-[11px] font-medium text-slate-300 backdrop-blur">
           <span
-            className={`w-1.5 h-1.5 rounded-full ${
+            className={`w-2 h-2 rounded-full ${
               connectionStatus === "connected"
-                ? "bg-emerald-400"
-                : "bg-amber-400 animate-pulse"
+                ? "bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"
+                : "bg-amber-400 animate-ping"
             }`}
           />
-          <span>{connectionStatus === "connected" ? "Live CRDT" : connectionStatus}</span>
+          <span>{connectionStatus === "connected" ? "Live CRDT Synced" : connectionStatus}</span>
         </div>
       </div>
 

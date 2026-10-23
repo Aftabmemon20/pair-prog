@@ -64,27 +64,30 @@ export function JoinModal({ roomId }: JoinModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl relative overflow-hidden">
-        {/* Glow accent */}
-        <div className="absolute -top-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-md bg-[#090d1e]/85 backdrop-blur-2xl border border-white/[0.12] rounded-3xl p-7 shadow-[0_24px_50px_rgba(0,0,0,0.8)] relative overflow-hidden ring-1 ring-white/10">
+        {/* Living Ambient Glows */}
+        <div className="absolute -top-16 -left-16 w-44 h-44 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -right-16 w-44 h-44 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex items-center gap-2 mb-2">
-          <div className="p-2 rounded-lg bg-purple-950/60 border border-purple-800/80 text-purple-400">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-purple-500/20 to-indigo-500/20 border border-purple-500/30 text-purple-400 shadow-inner">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Join Pair Session</h2>
-            <p className="text-xs text-slate-400">Room: <span className="font-mono text-slate-300">{roomId}</span></p>
+            <h2 className="text-lg font-bold text-white tracking-tight">Join Pair Session</h2>
+            <p className="text-xs text-slate-400">
+              Room: <span className="font-mono text-purple-300 font-semibold">{roomId}</span>
+            </p>
           </div>
         </div>
 
-        <p className="text-xs text-slate-400 mb-5 leading-relaxed">
-          Enter your display name to claim a seat. Max 2 human developers per session + Pair Master AI facilitator.
+        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+          Enter your display name to claim a collaborative seat. Two human developers + Pair Master AI pair facilitator.
         </p>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-rose-950/50 border border-rose-800/60 flex items-start gap-2.5 text-xs text-rose-300">
+          <div className="mb-4 p-3.5 rounded-2xl bg-rose-950/40 border border-rose-500/30 flex items-start gap-2.5 text-xs text-rose-300 shadow-inner">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -92,7 +95,7 @@ export function JoinModal({ roomId }: JoinModalProps) {
 
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
+            <label className="block text-xs font-medium text-slate-300 mb-2">
               Display Name
             </label>
             <input
@@ -100,8 +103,8 @@ export function JoinModal({ roomId }: JoinModalProps) {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Dev A, Mark, Alice"
-              className="w-full px-3.5 py-2 text-sm bg-slate-950 border border-slate-700/80 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition"
+              placeholder="e.g. Dev A, Dev B, Alex"
+              className="w-full px-4 py-2.5 text-sm bg-slate-950/80 border border-white/[0.12] rounded-xl text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition shadow-inner font-sans"
               autoFocus
             />
           </div>
@@ -109,7 +112,7 @@ export function JoinModal({ roomId }: JoinModalProps) {
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-600 hover:from-purple-500 hover:to-teal-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-[0.98]"
           >
             {loading ? (
               <>
@@ -118,7 +121,7 @@ export function JoinModal({ roomId }: JoinModalProps) {
               </>
             ) : (
               <>
-                <span>Enter Room</span>
+                <span>Enter Workspace</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

@@ -13,6 +13,7 @@ interface OutputPanelProps {
   onAskAgent?: (prompt: string) => void;
   onAnalyzeFailure?: () => void;
   diagramSrc?: string;
+  activeFileName?: string;
 }
 
 export function OutputPanel({
@@ -22,6 +23,7 @@ export function OutputPanel({
   onAskAgent,
   onAnalyzeFailure,
   diagramSrc,
+  activeFileName = "inventory.py",
 }: OutputPanelProps) {
   const { roomId } = useRoomStore();
   const [activeTab, setActiveTab] = useState<"terminal" | "traceback" | "symbols" | "diagram">("terminal");
@@ -62,68 +64,73 @@ export function OutputPanel({
 
   if (!runResult && symbols.length === 0 && !liveDiagramSrc && !diagramSrc) {
     return (
-      <div className="h-9 border-t border-white/[0.08] bg-slate-900/80 backdrop-blur-xl px-4 flex items-center justify-between text-xs text-slate-400 select-none">
+      <div className="h-10 border-t border-white/[0.08] bg-[#070b16]/80 backdrop-blur-xl px-4 flex items-center justify-between text-xs text-slate-400 select-none">
         <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400/80 shadow-[0_0_8px_#34d399] animate-pulse" />
           <Terminal className="w-3.5 h-3.5 text-sky-400" />
-          <span className="font-medium text-slate-300">Diagnostics & Output</span>
+          <span className="font-medium text-slate-300">Terminal & Output</span>
+          <span className="text-[11px] text-slate-500 font-mono">({activeFileName})</span>
         </div>
-        <span className="text-[11px] text-slate-500 font-mono">Press Ctrl+Enter to run in Pyodide sandbox</span>
+        <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+          <span className="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-slate-400">Ctrl+↵ Run</span>
+          <span className="hidden sm:inline text-slate-500">• In-Browser Pyodide Sandbox</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`border-t border-white/[0.08] bg-slate-900/90 backdrop-blur-2xl flex flex-col transition-all duration-200 ${
-      collapsed ? "h-10" : "h-64 sm:h-72"
+    <div className={`border-t border-white/[0.08] bg-[#070b16]/90 backdrop-blur-2xl flex flex-col transition-all duration-300 ease-in-out ${
+      collapsed ? "h-11" : "h-64 sm:h-72"
     }`}>
       {/* Panel Header */}
-      <div className="h-10 px-3 bg-slate-950/70 border-b border-white/[0.08] flex items-center justify-between text-xs select-none">
-        <div className="flex items-center gap-1.5">
+      <div className="h-11 px-3 bg-[#0a0f20]/75 border-b border-white/[0.08] flex items-center justify-between text-xs select-none">
+        <div className="flex items-center gap-1.5 p-0.5 bg-slate-950/60 rounded-xl border border-white/[0.06] shadow-inner">
           <button
             onClick={() => setActiveTab("terminal")}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition ${
               activeTab === "terminal"
-                ? "bg-slate-800 text-white shadow-sm border border-white/10"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-850"
+                ? "bg-slate-850 text-white shadow-sm ring-1 ring-white/10"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Terminal className="w-3.5 h-3.5" />
+            <Terminal className="w-3.5 h-3.5 text-sky-400" />
             <span>Terminal</span>
           </button>
 
           <button
             onClick={() => setActiveTab("traceback")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition ${
               activeTab === "traceback"
-                ? "bg-slate-800 text-slate-100 shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-slate-850 text-white shadow-sm ring-1 ring-white/10"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Bug className={`w-3.5 h-3.5 ${runResult?.exit_code !== 0 ? "text-rose-400" : ""}`} />
+            <Bug className={`w-3.5 h-3.5 ${runResult?.exit_code !== 0 ? "text-rose-400 animate-pulse" : "text-slate-400"}`} />
             <span>Traceback</span>
             {runResult?.exit_code !== 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]" />
             )}
           </button>
 
           <button
             onClick={() => setActiveTab("symbols")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition ${
               activeTab === "symbols"
-                ? "bg-slate-800 text-slate-100 shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-slate-850 text-white shadow-sm ring-1 ring-white/10"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="w-3.5 h-3.5 text-indigo-400" />
             <span>AST Symbols</span>
           </button>
 
           <button
             onClick={() => setActiveTab("diagram")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition ${
               activeTab === "diagram"
-                ? "bg-slate-800 text-slate-100 shadow-sm"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-slate-850 text-white shadow-sm ring-1 ring-white/10"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <Workflow className="w-3.5 h-3.5 text-purple-400" />
@@ -135,17 +142,17 @@ export function OutputPanel({
         <div className="flex items-center gap-2">
           {runResult && (
             <>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800/80 text-slate-300">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-slate-950/80 border border-white/[0.08] text-slate-300">
                 <Clock className="w-3 h-3 text-slate-400" />
                 <span>{runResult.execution_time_ms}ms</span>
               </div>
 
-              <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
                 runResult.exit_code === 0
-                  ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/60"
+                  ? "bg-emerald-950/60 text-emerald-400 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]"
                   : runResult.exit_code === 124
-                  ? "bg-amber-950/60 text-amber-400 border border-amber-800/60"
-                  : "bg-rose-950/60 text-rose-400 border border-rose-800/60"
+                  ? "bg-amber-950/60 text-amber-400 border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                  : "bg-rose-950/60 text-rose-400 border-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.15)]"
               }`}>
                 {runResult.exit_code === 0 ? (
                   <CheckCircle className="w-3 h-3" />
@@ -163,11 +170,11 @@ export function OutputPanel({
             </>
           )}
 
-          <div className="h-4 w-px bg-slate-800 mx-1" />
+          <div className="h-4 w-px bg-white/10 mx-1" />
 
           <button
             onClick={onClear}
-            className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition"
+            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] rounded-lg transition"
             title="Clear Output"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -175,7 +182,7 @@ export function OutputPanel({
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition"
+            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] rounded-lg transition"
           >
             {collapsed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
@@ -184,16 +191,21 @@ export function OutputPanel({
 
       {/* Tab Content */}
       {!collapsed && (
-        <div className="flex-1 overflow-auto p-3 font-mono text-xs bg-slate-950 select-text">
+        <div className="flex-1 overflow-auto p-3.5 font-mono text-xs bg-[#030612]/70 backdrop-blur select-text">
           {activeTab === "terminal" && (
-            <div className="space-y-1">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 pb-2 mb-2 border-b border-white/[0.06] text-[11px] text-slate-400 font-mono">
+                <span className="text-emerald-400 font-bold">$</span>
+                <span className="text-slate-200">python {activeFileName}</span>
+                <span className="text-slate-600 ml-auto hidden sm:inline text-[10px]">Pyodide WebWorker Sandbox</span>
+              </div>
               {runResult?.stdout && (
-                <pre className="text-slate-200 whitespace-pre-wrap leading-relaxed">
+                <pre className="text-slate-200 whitespace-pre-wrap leading-relaxed font-mono">
                   {runResult.stdout}
                 </pre>
               )}
               {runResult?.stderr && (
-                <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed bg-rose-950/20 p-2 rounded border border-rose-900/40">
+                <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed bg-rose-950/20 p-2.5 rounded-xl border border-rose-900/40 font-mono">
                   {runResult.stderr}
                 </pre>
               )}
