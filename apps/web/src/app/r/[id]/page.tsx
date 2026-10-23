@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { Play, Loader2, Sparkles, AlertCircle, Split, PenTool, Eraser, Globe } from "lucide-react";
+import { Play, Loader2, Sparkles, AlertCircle, Split, PenTool, Eraser, Globe, Code2, Columns } from "lucide-react";
 import { PresenceBar } from "@/components/PresenceBar";
 import { JoinModal } from "@/components/JoinModal";
 import { CollaborativeEditor, EditorHandle, OwnershipItem } from "@/components/CollaborativeEditor";
@@ -203,7 +203,7 @@ export default function RoomPage() {
     }
   }, [isRunning, currentUser, roomId]);
 
-  // Apple Workspace Mode: "code" (full editor), "split" (50/50), "cobrowse" (full browser studio)
+  // Workspace Mode: "code" (full editor), "split" (50/50), "cobrowse" (full browser studio)
   const [workspaceMode, setWorkspaceMode] = useState<"code" | "split" | "cobrowse">("split");
 
   const handleSelectLine = (line: number) => {
@@ -213,13 +213,8 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#030712] ambient-mesh-glow select-none text-slate-100 font-sans">
-      {/* Apple-Grade Header Presence Bar */}
-      <PresenceBar
-        workspaceMode={workspaceMode}
-        onSetWorkspaceMode={setWorkspaceMode}
-        onOpenRecap={() => setIsRecapOpen(true)}
-      />
+    <div className="h-screen w-screen overflow-hidden p-2.5 sm:p-3.5 flex bg-gradient-to-tr from-[#9bbbee] via-[#d5d7fc] to-[#fcd9e8] font-sans select-none ambient-canvas-breathe text-slate-800">
+      {/* Modals */}
       <JoinModal roomId={roomId} />
       <RecapModal
         roomId={roomId}
@@ -227,199 +222,219 @@ export default function RoomPage() {
         onClose={() => setIsRecapOpen(false)}
       />
 
-      {/* Sleek Apple-Style Sub-Header Command Bar */}
-      <div className="h-11 bg-slate-900/80 backdrop-blur-xl border-b border-white/[0.08] px-4 flex items-center justify-between z-20 shrink-0">
-        <div className="flex items-center gap-2.5">
-          {/* Primary Run Button */}
-          <button
-            onClick={handleRun}
-            disabled={isRunning || !currentUser}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 disabled:opacity-50 text-white font-medium text-xs rounded-full shadow-lg shadow-emerald-500/20 transition group border border-emerald-400/30"
-            title="Execute Python Code in Pyodide Sandbox (Ctrl+Enter)"
-          >
-            {isRunning ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Running...</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3 h-3 fill-white" />
-                <span>Run</span>
-                <span className="text-[10px] text-emerald-200/90 font-mono ml-0.5 hidden sm:inline">
-                  Ctrl+↵
-                </span>
-              </>
-            )}
-          </button>
-
-          {/* Pyodide Engine Status Capsule */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] text-slate-300 bg-slate-950/80 border border-white/[0.08] shadow-inner font-medium">
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                pyodideStatus === "ready"
-                  ? "bg-emerald-400 shadow-sm shadow-emerald-400"
-                  : pyodideStatus === "loading"
-                  ? "bg-amber-400 animate-pulse"
-                  : "bg-slate-500"
-              }`}
-            />
-            <span className="hidden sm:inline text-slate-400">Python 3.12:</span>
-            <span className="font-mono text-slate-200">
-              {pyodideStatus === "ready" ? "Sandbox Ready" : pyodideStatus === "loading" ? "Preloading..." : pyodideStatus}
-            </span>
-          </div>
-
-          <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block" />
-
-          {/* Voice Push-to-Talk (Groq Whisper Turbo) */}
-          <VoiceButton
-            roomId={roomId}
-            onSpeechTranscribed={() => setIsTimelineOpen(true)}
-          />
-
-          {/* Telestrator Drawing Tool (Draw on Code) */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setIsDrawingMode(!isDrawingMode)}
-              className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-medium transition ${
-                isDrawingMode
-                  ? "bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-2 ring-rose-500/20"
-                  : "bg-slate-950/80 hover:bg-slate-900 border-white/[0.08] text-slate-300 hover:text-white"
-              }`}
-              title="Toggle Telestrator Drawing (Draw on Code Editor)"
-            >
-              <PenTool className="w-3.5 h-3.5 text-rose-400" />
-              <span className="hidden sm:inline">Draw Code</span>
-            </button>
-
-            {isDrawingMode && (
-              <button
-                onClick={() => {
-                  const doc = editorRef.current?.getYDoc();
-                  if (doc) {
-                    const arr = doc.getArray("freehand_strokes");
-                    arr.delete(0, arr.length);
-                  }
-                }}
-                className="p-1 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-full transition"
-                title="Clear code markings"
-              >
-                <Eraser className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Right side: Split Work & Pair Master Facilitator */}
-        <div className="flex items-center gap-2">
-          {/* Split Work Button */}
-          <button
-            onClick={handleSplitWork}
-            disabled={isSplitting}
-            className="flex items-center gap-1.5 px-3 py-1 text-xs text-purple-200 bg-purple-950/50 hover:bg-purple-900/70 border border-purple-500/30 rounded-full shadow-sm transition disabled:opacity-50 font-medium"
-            title="Partition AST code ownership between Dev A and Dev B"
-          >
-            {isSplitting ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
-            ) : (
-              <Split className="w-3.5 h-3.5 text-purple-400" />
-            )}
-            <span className="hidden sm:inline">Split Work</span>
-            {ownership.length > 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm" />
-            )}
-          </button>
-
-          {/* Pair Master Timeline Toggle */}
-          <button
-            onClick={() => setIsTimelineOpen(!isTimelineOpen)}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border transition font-medium ${
-              isTimelineOpen
-                ? "bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30"
-                : "bg-slate-950/80 hover:bg-slate-900 border-white/[0.08] text-slate-300 hover:text-white"
-            }`}
-            title="Toggle Pair Master AI Facilitator Composer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-300" />
-            <span className="hidden sm:inline">Pair Master</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-          </button>
-        </div>
-      </div>
-
-      {/* Main Workspace + Timeline Split */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Editor on top, Output Panel on bottom */}
-        <main className="flex-1 flex flex-col relative overflow-hidden">
-          <div className="flex-1 flex overflow-hidden relative">
-            {/* Monaco Editor Container (Apple Segmented View) */}
-            <div
-              className={`h-full relative overflow-hidden transition-all duration-300 ease-in-out ${
-                workspaceMode === "code"
-                  ? "w-full"
-                  : workspaceMode === "split"
-                  ? "w-1/2 border-r border-white/[0.08]"
-                  : "w-0 hidden"
-              }`}
-            >
-              <CollaborativeEditor
-                ref={editorRef}
-                roomId={roomId}
-                onRunShortcut={handleRun}
-              />
-              <DrawingCanvas
-                isDrawingMode={isDrawingMode}
-                ydoc={editorRef.current?.getYDoc()}
-              />
+      {/* Main Minimalist Floating Card Shell (Like Reference Image) */}
+      <div className="flex-1 rounded-[28px] bg-white/95 backdrop-blur-2xl shadow-[0_20px_60px_-15px_rgba(20,30,60,0.12)] border border-white/80 overflow-hidden flex flex-row relative">
+        
+        {/* Left Slim Vertical Icon Rail */}
+        <aside className="w-16 bg-[#f8fafc]/90 border-r border-slate-200/70 flex flex-col items-center py-4 justify-between shrink-0 select-none z-30">
+          {/* Top Brand & Workspace Navigation Icons */}
+          <div className="flex flex-col items-center gap-4 w-full">
+            {/* Pairio Logo Squircle */}
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-500/25 ring-2 ring-white">
+              P
             </div>
 
-            {/* Co-Browse Tab Studio Panel (Apple Segmented View) */}
-            {workspaceMode !== "code" && (
-              <div
-                className={`h-full flex flex-col relative overflow-hidden transition-all duration-300 ease-in-out ${
-                  workspaceMode === "cobrowse" ? "w-full" : "w-1/2"
-                }`}
-              >
-                <CoBrowseStudio
-                  roomId={roomId}
-                  ydoc={editorRef.current?.getYDoc()}
-                  onAskAgent={(prompt) => {
-                    setIsTimelineOpen(true);
-                    setPendingAgentPrompt(prompt);
-                  }}
-                  onClose={() => setWorkspaceMode("code")}
-                />
-              </div>
-            )}
+            <div className="w-8 h-px bg-slate-200" />
+
+            {/* Code View Icon */}
+            <button
+              onClick={() => setWorkspaceMode("code")}
+              className={`p-2.5 rounded-2xl transition ${
+                workspaceMode === "code"
+                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/80 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Code Editor Mode"
+            >
+              <Code2 className="w-5 h-5" />
+            </button>
+
+            {/* Split Screen Icon */}
+            <button
+              onClick={() => setWorkspaceMode("split")}
+              className={`p-2.5 rounded-2xl transition ${
+                workspaceMode === "split"
+                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/80 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Split Code & Browser"
+            >
+              <Columns className="w-5 h-5" />
+            </button>
+
+            {/* Co-Browse Webview Icon */}
+            <button
+              onClick={() => setWorkspaceMode("cobrowse")}
+              className={`p-2.5 rounded-2xl transition ${
+                workspaceMode === "cobrowse"
+                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/80 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Co-Browse Web Studio"
+            >
+              <Globe className="w-5 h-5" />
+            </button>
+
+            {/* Split AST Work Action */}
+            <button
+              onClick={handleSplitWork}
+              disabled={isSplitting}
+              className={`p-2.5 rounded-2xl transition relative ${
+                ownership.length > 0
+                  ? "bg-purple-50 text-purple-600 ring-1 ring-purple-200/80"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Split Work (AST Ownership Partitioning)"
+            >
+              {isSplitting ? (
+                <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+              ) : (
+                <Split className="w-5 h-5" />
+              )}
+              {ownership.length > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500 shadow-sm" />
+              )}
+            </button>
+
+            {/* Telestrator Drawing Pen Tool */}
+            <button
+              onClick={() => setIsDrawingMode(!isDrawingMode)}
+              className={`p-2.5 rounded-2xl transition ${
+                isDrawingMode
+                  ? "bg-rose-50 text-rose-600 ring-1 ring-rose-300 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Toggle Telestrator Drawing on Code"
+            >
+              <PenTool className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Output Diagnostics Panel */}
-          <OutputPanel
-            runResult={runResult}
-            onClear={() => setRunResult(null)}
-            onSelectLine={handleSelectLine}
-            onAskAgent={(prompt) => {
-              setIsTimelineOpen(true);
-              setPendingAgentPrompt(prompt);
-            }}
-            onAnalyzeFailure={handleAnalyzeFailure}
-            diagramSrc={diagramSrc}
-            activeFileName={activeFileName}
-          />
-        </main>
+          {/* Bottom Rail Actions */}
+          <div className="flex flex-col items-center gap-3 w-full">
+            {/* Voice Push-to-Talk */}
+            <VoiceButton
+              roomId={roomId}
+              onSpeechTranscribed={() => setIsTimelineOpen(true)}
+            />
 
-        {/* Pair Master Timeline Panel (Apple Intelligence Composer Drawer) */}
-        <TimelinePanel
-          isOpen={isTimelineOpen}
-          onClose={() => setIsTimelineOpen(false)}
-          onSelectLine={handleSelectLine}
-          pendingPrompt={pendingAgentPrompt}
-          onClearPendingPrompt={() => setPendingAgentPrompt(null)}
-        />
+            {/* Pair Master Toggle */}
+            <button
+              onClick={() => setIsTimelineOpen(!isTimelineOpen)}
+              className={`p-2.5 rounded-2xl transition ${
+                isTimelineOpen
+                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+              title="Toggle Pair Master Facilitator"
+            >
+              <Sparkles className="w-5 h-5" />
+            </button>
+          </div>
+        </aside>
+
+        {/* Central Workspace + Right Drawer */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
+          {/* Top Breadcrumb & Contributor Header */}
+          <PresenceBar
+            workspaceMode={workspaceMode}
+            onSetWorkspaceMode={setWorkspaceMode}
+            onOpenRecap={() => setIsRecapOpen(true)}
+            onRun={handleRun}
+            isRunning={isRunning}
+            pyodideStatus={pyodideStatus}
+            isTimelineOpen={isTimelineOpen}
+            onToggleTimeline={() => setIsTimelineOpen(!isTimelineOpen)}
+          />
+
+          {/* Main Work Area */}
+          <div className="flex-1 flex overflow-hidden relative">
+            <main className="flex-1 flex flex-col relative overflow-hidden bg-white">
+              <div className="flex-1 flex overflow-hidden relative">
+                {/* Monaco Editor Container */}
+                <div
+                  className={`h-full relative overflow-hidden transition-all duration-300 ease-in-out ${
+                    workspaceMode === "code"
+                      ? "w-full"
+                      : workspaceMode === "split"
+                      ? "w-1/2 border-r border-slate-200/80"
+                      : "w-0 hidden"
+                  }`}
+                >
+                  <CollaborativeEditor
+                    ref={editorRef}
+                    roomId={roomId}
+                    onRunShortcut={handleRun}
+                  />
+                  <DrawingCanvas
+                    isDrawingMode={isDrawingMode}
+                    ydoc={editorRef.current?.getYDoc()}
+                  />
+                  {isDrawingMode && (
+                    <button
+                      onClick={() => {
+                        const doc = editorRef.current?.getYDoc();
+                        if (doc) {
+                          const arr = doc.getArray("freehand_strokes");
+                          arr.delete(0, arr.length);
+                        }
+                      }}
+                      className="absolute bottom-4 right-4 z-40 p-2 bg-white rounded-full shadow-lg border border-slate-200 text-rose-500 hover:bg-rose-50 transition"
+                      title="Clear code markings"
+                    >
+                      <Eraser className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Co-Browse Web Studio */}
+                {workspaceMode !== "code" && (
+                  <div
+                    className={`h-full flex flex-col relative overflow-hidden transition-all duration-300 ease-in-out ${
+                      workspaceMode === "cobrowse" ? "w-full" : "w-1/2"
+                    }`}
+                  >
+                    <CoBrowseStudio
+                      roomId={roomId}
+                      ydoc={editorRef.current?.getYDoc()}
+                      onAskAgent={(prompt) => {
+                        setIsTimelineOpen(true);
+                        setPendingAgentPrompt(prompt);
+                      }}
+                      onClose={() => setWorkspaceMode("code")}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Output Diagnostics Panel */}
+              <OutputPanel
+                runResult={runResult}
+                onClear={() => setRunResult(null)}
+                onSelectLine={handleSelectLine}
+                onAskAgent={(prompt) => {
+                  setIsTimelineOpen(true);
+                  setPendingAgentPrompt(prompt);
+                }}
+                onAnalyzeFailure={handleAnalyzeFailure}
+                diagramSrc={diagramSrc}
+                activeFileName={activeFileName}
+              />
+            </main>
+
+            {/* Pair Master Timeline Panel (UX Research styled right card) */}
+            <TimelinePanel
+              isOpen={isTimelineOpen}
+              onClose={() => setIsTimelineOpen(false)}
+              onSelectLine={handleSelectLine}
+              pendingPrompt={pendingAgentPrompt}
+              onClearPendingPrompt={() => setPendingAgentPrompt(null)}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Floating WebRTC Zoom-style Call Bar */}
+      {/* Floating WebRTC Call Bar */}
       <CallBar roomId={roomId} />
     </div>
   );

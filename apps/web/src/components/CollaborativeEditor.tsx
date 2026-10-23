@@ -507,31 +507,31 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
       editorRef.current = editor;
       monacoRef.current = monaco;
 
-      // Define Apple dark editor palette
-      monaco.editor.defineTheme("pairio-dark-apple", {
-        base: "vs-dark",
+      // Define clean, airy light editor palette
+      monaco.editor.defineTheme("pairio-light-modern", {
+        base: "vs",
         inherit: true,
         rules: [
-          { token: "comment", foreground: "64748b", fontStyle: "italic" },
-          { token: "keyword", foreground: "c084fc", fontStyle: "bold" },
-          { token: "string", foreground: "38bdf8" },
-          { token: "number", foreground: "34d399" },
-          { token: "identifier", foreground: "e2e8f0" },
+          { token: "comment", foreground: "94a3b8", fontStyle: "italic" },
+          { token: "keyword", foreground: "6366f1", fontStyle: "bold" },
+          { token: "string", foreground: "0284c7" },
+          { token: "number", foreground: "10b981" },
+          { token: "identifier", foreground: "1e293b" },
         ],
         colors: {
-          "editor.background": "#080b14",
-          "editor.foreground": "#f1f5f9",
-          "editor.lineHighlightBackground": "#1e293b22",
-          "editorCursor.foreground": "#38bdf8",
-          "editorWhitespace.foreground": "#33415544",
-          "editorIndentGuide.background": "#33415525",
-          "editorIndentGuide.activeBackground": "#47556955",
-          "editorLineNumber.foreground": "#475569",
-          "editorLineNumber.activeForeground": "#94a3b8",
+          "editor.background": "#ffffff",
+          "editor.foreground": "#1e293b",
+          "editor.lineHighlightBackground": "#f8fafc",
+          "editorCursor.foreground": "#6366f1",
+          "editorWhitespace.foreground": "#e2e8f0",
+          "editorIndentGuide.background": "#f1f5f9",
+          "editorIndentGuide.activeBackground": "#cbd5e1",
+          "editorLineNumber.foreground": "#94a3b8",
+          "editorLineNumber.activeForeground": "#334155",
         },
       });
 
-      monaco.editor.setTheme("pairio-dark-apple");
+      monaco.editor.setTheme("pairio-light-modern");
 
       // Bind Ctrl+Enter / Cmd+Enter to run shortcut
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
@@ -544,24 +544,24 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
     };
 
     return (
-      <div className="relative h-full w-full flex bg-[#080b14] overflow-hidden select-none">
+      <div className="relative h-full w-full flex bg-white overflow-hidden select-none">
         {/* Remote cursor CSS styling injected dynamically */}
         <style jsx global>{`
           .yRemoteSelection {
-            background-color: rgba(16, 185, 129, 0.2);
+            background-color: rgba(99, 102, 241, 0.15);
           }
           .yRemoteSelectionHead {
             position: absolute;
-            border-left: 2px solid #10b981;
-            border-top: 2px solid #10b981;
-            border-bottom: 2px solid #10b981;
+            border-left: 2px solid #6366f1;
+            border-top: 2px solid #6366f1;
+            border-bottom: 2px solid #6366f1;
             height: 100%;
             box-sizing: border-box;
           }
           .yRemoteSelectionHead::after {
             position: absolute;
             content: " ";
-            border: 3px solid #10b981;
+            border: 3px solid #6366f1;
             left: -4px;
             top: -5px;
           }
@@ -578,48 +578,48 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
 
         {/* Collapsible VS Code / Zed Style Project Explorer Sidebar */}
         <div
-          className={`h-full flex flex-col border-r border-white/[0.08] bg-[#070913]/90 backdrop-blur-2xl transition-all duration-300 ease-in-out shrink-0 ${
+          className={`h-full flex flex-col border-r border-slate-200/80 bg-slate-50/70 transition-all duration-300 ease-in-out shrink-0 ${
             isSidebarOpen ? "w-52 md:w-56" : "w-0 overflow-hidden border-none"
           }`}
         >
           {/* Explorer Header */}
-          <div className="h-10 px-3 border-b border-white/[0.06] flex items-center justify-between text-xs text-slate-300">
-            <div className="flex items-center gap-1.5 font-semibold tracking-wider text-[11px] uppercase text-slate-400">
-              <FolderOpen className="w-3.5 h-3.5 text-sky-400" />
+          <div className="h-11 px-3.5 border-b border-slate-200/70 flex items-center justify-between text-xs text-slate-700 bg-white/60">
+            <div className="flex items-center gap-1.5 font-semibold tracking-wider text-[11px] uppercase text-slate-500">
+              <FolderOpen className="w-3.5 h-3.5 text-indigo-500" />
               <span>Explorer</span>
             </div>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleCreateNewFile}
-                className="p-1 hover:bg-white/[0.08] text-slate-400 hover:text-white rounded transition"
+                className="p-1 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-lg transition"
                 title="New Python File"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={handleOpenFolder}
-                className="p-1 hover:bg-white/[0.08] text-slate-400 hover:text-white rounded transition"
+                className="p-1 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-lg transition"
                 title="Open Local Folder"
               >
-                <UploadCloud className="w-3.5 h-3.5 text-emerald-400" />
+                <UploadCloud className="w-3.5 h-3.5 text-indigo-600" />
               </button>
             </div>
           </div>
 
           {/* Quick Action: Open Folder Banner */}
-          <div className="p-2 border-b border-white/[0.04]">
+          <div className="p-2.5 border-b border-slate-200/60 bg-white/40">
             <button
               onClick={handleOpenFolder}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-[11px] text-slate-200 font-medium transition shadow-sm group"
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200/60 text-[11px] text-indigo-700 font-semibold transition shadow-sm group"
             >
-              <FolderOpen className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform" />
+              <FolderOpen className="w-3.5 h-3.5 text-indigo-600 group-hover:scale-110 transition-transform" />
               <span>Open Local Folder</span>
             </button>
           </div>
 
           {/* File Tree List */}
-          <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
-            <div className="px-2 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
               <ChevronDown className="w-3 h-3" />
               <span>Workspace Files ({files.length})</span>
             </div>
@@ -630,23 +630,23 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                 <div
                   key={file.id}
                   onClick={() => handleSelectFile(file.id)}
-                  className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition group ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs cursor-pointer transition ${
                     isActive
-                      ? "bg-slate-800/90 text-white font-medium border border-white/10 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
+                      ? "bg-white text-indigo-600 font-semibold border border-slate-200/80 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
                     <FileCode
                       className={`w-3.5 h-3.5 shrink-0 ${
-                        file.isCRDT ? "text-emerald-400" : "text-sky-400"
+                        file.isCRDT ? "text-emerald-500" : "text-indigo-500"
                       }`}
                     />
                     <span className="truncate text-[12px]">{file.name}</span>
                   </div>
 
                   {file.isCRDT && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
                       Live
                     </span>
                   )}
@@ -656,25 +656,25 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
           </div>
 
           {/* Sidebar Footer Indicator */}
-          <div className="p-2.5 border-t border-white/[0.06] bg-slate-950/40 text-[10px] text-slate-500 flex items-center justify-between">
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Pyodide Ready
+          <div className="p-3 border-t border-slate-200/70 bg-white/70 text-[10px] text-slate-500 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+              <span className="font-medium text-slate-600">Pyodide Sandbox</span>
             </span>
-            <span className="font-mono">Python 3.12</span>
+            <span className="font-mono text-slate-400">Python 3.12</span>
           </div>
         </div>
 
         {/* Main Editor Canvas + Tabs */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+        <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-white">
           {/* Visual Editor Tabs Bar */}
-          <div className="h-10 border-b border-white/[0.06] bg-[#070a14]/80 backdrop-blur-xl px-2 flex items-center justify-between gap-2 overflow-x-auto shrink-0 select-none">
+          <div className="h-11 border-b border-slate-200/80 bg-slate-50/70 px-3 flex items-center justify-between gap-2 overflow-x-auto shrink-0 select-none">
             {/* Left: Sidebar Toggle & Tabs */}
-            <div className="flex items-center gap-1 h-full overflow-x-auto">
+            <div className="flex items-center gap-1.5 h-full overflow-x-auto">
               {/* Sidebar Collapse/Expand Button */}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-1.5 hover:bg-white/[0.08] text-slate-400 hover:text-white rounded-lg transition mr-1"
+                className="p-1.5 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-lg transition mr-1"
                 title={isSidebarOpen ? "Hide File Explorer" : "Show File Explorer"}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -690,15 +690,15 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                   <div
                     key={tabId}
                     onClick={() => handleSelectFile(tabId)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-t-xl text-xs font-medium cursor-pointer transition border-b-2 ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer transition ${
                       isActive
-                        ? "bg-[#080b14] text-white border-sky-400 shadow-sm"
-                        : "text-slate-400 hover:text-slate-200 border-transparent hover:bg-white/[0.04]"
+                        ? "bg-white text-slate-900 border border-slate-200/90 shadow-sm font-semibold"
+                        : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/40"
                     }`}
                   >
                     <FileCode
                       className={`w-3.5 h-3.5 ${
-                        file.isCRDT ? "text-emerald-400" : "text-sky-400"
+                        file.isCRDT ? "text-emerald-500" : "text-indigo-500"
                       }`}
                     />
                     <span className="font-mono text-[11px]">{file.name}</span>
@@ -706,7 +706,7 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                     {openTabIds.length > 1 && (
                       <button
                         onClick={(e) => handleCloseTab(e, tabId)}
-                        className="p-0.5 rounded-full hover:bg-white/10 text-slate-500 hover:text-white transition"
+                        className="p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition"
                         title="Close Tab"
                       >
                         <X className="w-3 h-3" />
@@ -717,25 +717,20 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
               })}
             </div>
 
-            {/* Right: Quick Run Active File Button */}
+            {/* Right: Active file badge */}
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={onRunShortcut}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-medium transition shadow-sm"
-                title="Run active file in Pyodide WebWorker sandbox (Ctrl+Enter)"
-              >
-                <Play className="w-3 h-3 fill-emerald-400 text-emerald-400" />
-                <span>Run {activeFile.name}</span>
-              </button>
+              <span className="text-[11px] font-mono text-slate-400 hidden md:inline">
+                Editing: <strong className="text-slate-700 font-semibold">{activeFile.name}</strong>
+              </span>
             </div>
           </div>
 
           {/* Monaco Editor Container */}
-          <div className="flex-1 relative overflow-hidden bg-[#080b14]">
+          <div className="flex-1 relative overflow-hidden bg-white">
             <Editor
               height="100%"
               defaultLanguage="python"
-              theme="vs-dark"
+              theme="pairio-light-modern"
               options={{
                 fontSize: 13.5,
                 fontFamily:

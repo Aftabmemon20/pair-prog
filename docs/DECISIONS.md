@@ -159,3 +159,14 @@ This document tracks all significant architectural decisions, stack selections, 
   - Upgrade the entire aesthetic to an **Apple-grade Breathing Ambient UI** using mesh radial gradients (`ambient-mesh-glow`), living glowing indicator dots, frosted glass tokens (`apple-glass-card`), and ultra-thin custom scrollbars, avoiding flat dead black while preserving 100% of underlying features.
 - **Consequences**: First-class IDE capabilities, custom folder opening, multi-tab Python development, and a visually stunning "breathing" developer experience.
 
+## ADR-021: Minimalist Breathing UI, Left Icon Dock & Floating Canvas Architecture
+- **Context**: The dense dark layout with stacked toolbars (top header, command sub-header, tab bar, Co-Browse bar) felt visually cluttered. The user requested an airy, modern, minimalist SaaS aesthetic inspired by clean productivity dashboards (e.g., Linear, Cron, Apple, modern research hubs).
+- **Decision**:
+  - **Ambient Pastel Mesh Canvas**: Replaced pitch-black `#030712` background with a gentle, breathing pastel mesh background (`from-[#9bbbee] via-[#d5d7fc] to-[#fcd9e8]`).
+  - **Central Floating Rounded App Card**: Enclosed the entire workspace in a floating `rounded-[28px] bg-white/95 border border-white/80 shadow-[0_20px_60px_-15px_rgba(20,30,60,0.12)]` window with generous breathing whitespace.
+  - **Left Vertical Icon Dock**: Collapsed auxiliary actions (workspace view toggles, split work, telestrator drawing, push-to-talk voice, and Pair Master trigger) into a slim, 16-pixel-wide icon dock on the left with rounded squircle buttons.
+  - **Streamlined Top Header**: Consolidated the header into clean breadcrumbs (`Overview • Pair Master Studio`), room copy pill, soft pill workspace switcher (`Code`, `Split Studio`, `Co-Browse`), participant avatars, and an embedded gradient `Run (Ctrl+Enter)` pill, completely eliminating the secondary command sub-header.
+  - **Light Clean Monaco Theme (`pairio-light-modern`)**: Switched Monaco and panels to a crisp, high-contrast, calm light theme with subtle slate borders and pastel badge accents.
+  - **Semicircular Progress Gauge in Pair Master Panel**: Modeled the right timeline drawer after the reference UI, featuring a dynamic SVG arc gauge showing verified test status (`67% Verified/Tested`), priority capsules (`High priority`), facilitator badge, and floating prompt inputs.
+- **Consequences**: Drastically reduced visual noise and cognitive load, achieved a top-tier modern aesthetic, and preserved 100% of underlying pairing, execution, drawing, and AI features.
+

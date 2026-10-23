@@ -492,10 +492,10 @@ export function CoBrowseStudio({
     : [];
 
   return (
-    <div className="flex flex-col h-full bg-[#030712] text-slate-100 select-none overflow-hidden relative border-l border-white/[0.06]">
-      {/* Apple Safari macOS Style Window Header */}
-      <div className="h-12 bg-slate-900/90 backdrop-blur-xl border-b border-white/[0.08] px-3.5 flex items-center justify-between gap-3 shrink-0">
-        {/* Left: Authentic macOS Traffic Lights */}
+    <div className="flex flex-col h-full bg-white text-slate-800 select-none overflow-hidden relative border-l border-slate-200/80">
+      {/* Clean Safari Style Window Header */}
+      <div className="h-12 bg-slate-50/90 border-b border-slate-200/80 px-3.5 flex items-center justify-between gap-3 shrink-0">
+        {/* Left: Traffic Lights */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <button
@@ -513,21 +513,21 @@ export function CoBrowseStudio({
             />
           </div>
 
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-slate-300 text-[11px] font-medium shadow-sm">
-            <Globe className="w-3 h-3 text-sky-400" />
-            <span>Co-Browse Safari</span>
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700 text-[11px] font-medium shadow-sm">
+            <Globe className="w-3 h-3 text-indigo-500" />
+            <span>Co-Browse Web</span>
           </div>
         </div>
 
-        {/* Center: Frosted Glass Unified Search / Address Capsule */}
+        {/* Center: Clean Unified Search / Address Capsule */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             updateSharedUrl(urlInput);
           }}
-          className="flex-1 max-w-md flex items-center bg-slate-950/80 hover:bg-slate-950 border border-white/[0.08] focus-within:border-sky-500/80 rounded-full px-3.5 py-1 text-xs text-slate-200 transition shadow-inner group"
+          className="flex-1 max-w-md flex items-center bg-white border border-slate-200 focus-within:border-indigo-500 rounded-full px-3.5 py-1 text-xs text-slate-800 transition shadow-sm group"
         >
-          <Lock className="w-3 h-3 text-emerald-400 shrink-0 mr-1.5" />
+          <Lock className="w-3 h-3 text-emerald-500 shrink-0 mr-1.5" />
           <input
             type="text"
             value={
@@ -538,12 +538,12 @@ export function CoBrowseStudio({
             disabled={isAnyStreamActive}
             onChange={(e) => setUrlInput(e.target.value)}
             placeholder="Search or enter website URL..."
-            className="bg-transparent border-none outline-none w-full text-slate-200 placeholder-slate-500 disabled:opacity-90 font-mono text-[11px]"
+            className="bg-transparent border-none outline-none w-full text-slate-800 placeholder-slate-400 disabled:opacity-90 font-mono text-[11px]"
           />
           {!isAnyStreamActive && (
             <button
               type="submit"
-              className="text-slate-400 group-hover:text-sky-400 transition ml-1 p-0.5 rounded hover:bg-slate-800"
+              className="text-slate-400 group-hover:text-indigo-600 transition ml-1 p-0.5 rounded hover:bg-slate-100"
               title="Navigate URL"
             >
               <ArrowRight className="w-3 h-3" />
@@ -554,15 +554,15 @@ export function CoBrowseStudio({
         {/* Right: Quick Tab Presets & Streaming Actions */}
         <div className="flex items-center gap-2 shrink-0">
           {!isAnyStreamActive && (
-            <div className="hidden xl:flex items-center gap-1 bg-slate-950/60 p-0.5 rounded-full border border-white/[0.06]">
+            <div className="hidden xl:flex items-center gap-1 bg-slate-100 p-0.5 rounded-full border border-slate-200/80">
               {PRESET_TABS.map((preset) => (
                 <button
                   key={preset.name}
                   onClick={() => updateSharedUrl(preset.url)}
                   className={`px-2.5 py-0.5 text-[10px] rounded-full transition font-medium ${
                     currentUrl.includes(preset.name.toLowerCase().replace(/\s+/g, ""))
-                      ? "bg-slate-800 text-sky-300 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                      ? "bg-white text-indigo-600 shadow-sm font-semibold"
+                      : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/60"
                   }`}
                 >
                   {preset.name}
@@ -575,21 +575,21 @@ export function CoBrowseStudio({
           {isSharingTab ? (
             <button
               onClick={stopTabShare}
-              className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 transition font-medium shadow-sm animate-pulse"
+              className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-rose-50 border border-rose-300 text-rose-700 transition font-medium shadow-sm animate-pulse"
               title="Stop Sharing Tab"
             >
               <VideoOff className="w-3.5 h-3.5" />
               <span>Stop Stream</span>
             </button>
           ) : isPeerSharing ? (
-            <div className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-sky-500/15 border border-sky-500/40 text-sky-300 font-medium shadow-sm animate-pulse">
+            <div className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-medium shadow-sm animate-pulse">
               <Eye className="w-3.5 h-3.5" />
               <span>Receiving Stream</span>
             </div>
           ) : (
             <button
               onClick={startTabShare}
-              className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium shadow-md shadow-emerald-950/40 transition ring-1 ring-emerald-400/30"
+              className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-sm transition"
               title="Cast active Chrome tab into the room (WebRTC 60 FPS HD)"
             >
               <MonitorPlay className="w-3.5 h-3.5" />
@@ -600,10 +600,10 @@ export function CoBrowseStudio({
           {/* Inspect with Seat 3 AI */}
           <button
             onClick={handleAskSeat3AboutTab}
-            className="flex items-center gap-1.5 px-3 py-1 text-xs text-purple-200 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 rounded-full transition font-medium shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 font-medium transition shadow-sm group"
             title="Ask Seat 3 AI to inspect this tab with the current Python code"
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 group-hover:scale-110 transition-transform" />
             <span className="hidden md:inline">Inspect with Seat 3</span>
           </button>
         </div>

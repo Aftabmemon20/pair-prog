@@ -305,21 +305,25 @@ export function TimelinePanel({
   if (!isOpen) return null;
 
   return (
-    <aside className="w-80 md:w-96 flex flex-col h-full bg-[#050811]/90 backdrop-blur-2xl border-l border-white/[0.08] shadow-2xl z-20 select-none">
-      {/* Apple Composer Header */}
-      <div className="h-11 px-3.5 border-b border-white/[0.08] bg-slate-900/80 backdrop-blur-xl flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/25 ring-1 ring-white/20">
-            <Sparkles className="w-3.5 h-3.5 text-white" />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-xs text-white">Pair Master</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono border border-purple-500/30">
+    <aside className="w-84 md:w-96 flex flex-col h-full bg-white/95 backdrop-blur-xl border-l border-slate-200/80 shadow-xl z-20 select-none">
+      {/* Header (like UX Research in Reference Image) */}
+      <div className="h-14 px-4 border-b border-slate-200/80 flex items-center justify-between shrink-0 bg-white/80">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={onClose}
+            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition"
+            title="Collapse Drawer"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm text-slate-800">Pair Master</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-semibold border border-indigo-200/60">
               Seat 3 AI
             </span>
           </div>
           {isAsking && (
-            <span className="flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-800/40 px-2 py-0.5 rounded-full animate-pulse ml-1">
+            <span className="flex items-center gap-1 text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full animate-pulse">
               <Loader2 className="w-2.5 h-2.5 animate-spin" />
               Thinking
             </span>
@@ -328,50 +332,152 @@ export function TimelinePanel({
 
         <button
           onClick={onClose}
-          className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition"
-          title="Close Composer Drawer"
+          className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+          title="Close Composer"
         >
           <XCircle className="w-4 h-4" />
         </button>
       </div>
 
+      {/* Semicircle Progress Gauge Card (Modeled Directly After Reference Image) */}
+      <div className="p-4 border-b border-slate-200/70 bg-slate-50/60 shrink-0">
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-medium">
+          <span className="font-semibold text-slate-700">Code Health & Ownership</span>
+          <span className="text-[11px] text-slate-400">Pairio Live</span>
+        </div>
+
+        {/* Semicircle Gauge Visualization */}
+        <div className="flex flex-col items-center justify-center py-1">
+          <div className="relative w-36 h-20 flex items-center justify-center overflow-hidden">
+            <svg className="w-36 h-36 -rotate-90" viewBox="0 0 100 100">
+              {/* Background Arc */}
+              <circle
+                cx="50"
+                cy="50"
+                r="38"
+                fill="transparent"
+                stroke="#f1f5f9"
+                strokeWidth="8"
+              />
+              {/* Done / Tested Arc (Lavender) */}
+              <circle
+                cx="50"
+                cy="50"
+                r="38"
+                fill="transparent"
+                stroke="#818cf8"
+                strokeWidth="8"
+                strokeDasharray="120 180"
+                strokeLinecap="round"
+              />
+              {/* In Progress Arc (Amber) */}
+              <circle
+                cx="50"
+                cy="50"
+                r="38"
+                fill="transparent"
+                stroke="#fcd34d"
+                strokeWidth="8"
+                strokeDasharray="40 260"
+                strokeDashoffset="-125"
+                strokeLinecap="round"
+              />
+              {/* Error / To Do Arc (Pink) */}
+              <circle
+                cx="50"
+                cy="50"
+                r="38"
+                fill="transparent"
+                stroke="#f472b6"
+                strokeWidth="8"
+                strokeDasharray="30 270"
+                strokeDashoffset="-170"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute bottom-1 flex flex-col items-center">
+              <span className="text-xl font-bold text-slate-800 tracking-tight">67%</span>
+              <span className="text-[10px] text-slate-400 font-medium -mt-0.5">Verified</span>
+            </div>
+          </div>
+
+          {/* Gauge Legend */}
+          <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-2 font-medium">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-indigo-400" />
+              <span>Done</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span>In Progress</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-pink-400" />
+              <span>To Do</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Priority & Metadata Row (like Reference Image) */}
+        <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-200/60 text-xs">
+          <div>
+            <span className="text-[10px] uppercase font-semibold text-slate-400 block mb-1">
+              Priority
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold text-[11px] inline-block">
+              High priority
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-semibold text-slate-400 block mb-1">
+              Facilitator
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold text-[11px] inline-block">
+              Pair Master AI
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Message Feed */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-3 font-sans text-xs bg-[#030610]/50 select-text">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3.5 font-sans text-xs bg-slate-50/40 select-text">
         {events.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-4 text-slate-400 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-inner">
+          <div className="flex flex-col items-center justify-center h-full text-center p-2 text-slate-500 space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200/80 flex items-center justify-center text-indigo-600 shadow-sm">
               <Bot className="w-6 h-6" />
             </div>
             <div>
-              <p className="font-semibold text-slate-200 text-sm mb-1">Pair Master Composer</p>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-[240px]">
-                I inspect code slices, explain runtime tracebacks, and help coordinate tasks.
+              <p className="font-bold text-slate-800 text-sm mb-1">Pair Master Facilitator</p>
+              <p className="text-xs text-slate-500 leading-relaxed max-w-[240px]">
+                I explain tracebacks, partition code ownership, and generate architectural diagrams.
               </p>
             </div>
 
-            {/* Quick Prompt Pills */}
-            <div className="w-full space-y-1.5 pt-3 text-left">
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Suggested Prompts</span>
+            {/* Quick Prompt Pills (like Subtasks in Reference Image) */}
+            <div className="w-full space-y-2 pt-2 text-left">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                Suggested Prompts
+              </span>
               <button
                 onClick={() => handleAsk("What functions are defined in inventory.py?")}
-                className="w-full text-left px-3 py-2 rounded-xl bg-slate-900/80 border border-white/[0.08] hover:border-purple-500/50 hover:bg-slate-850 hover:text-purple-200 text-slate-300 text-xs transition shadow-sm flex items-center justify-between group"
+                className="w-full text-left px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-indigo-300 hover:bg-indigo-50/40 text-slate-700 text-xs transition shadow-sm flex items-center justify-between group"
               >
                 <span>🔍 What functions are defined?</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-300 transition" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition" />
               </button>
               <button
                 onClick={() => handleAsk("Explain why this code failed and where.")}
-                className="w-full text-left px-3 py-2 rounded-xl bg-slate-900/80 border border-white/[0.08] hover:border-rose-500/50 hover:bg-slate-850 hover:text-rose-200 text-slate-300 text-xs transition shadow-sm flex items-center justify-between group"
+                className="w-full text-left px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-rose-300 hover:bg-rose-50/40 text-slate-700 text-xs transition shadow-sm flex items-center justify-between group"
               >
                 <span>🐞 Explain why code failed and where</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-300 transition" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition" />
               </button>
               <button
                 onClick={() => handleAsk("Produce an architecture diagram of our inventory pipeline.")}
-                className="w-full text-left px-3 py-2 rounded-xl bg-slate-900/80 border border-white/[0.08] hover:border-indigo-500/50 hover:bg-slate-850 hover:text-indigo-200 text-slate-300 text-xs transition shadow-sm flex items-center justify-between group"
+                className="w-full text-left px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-indigo-300 hover:bg-indigo-50/40 text-slate-700 text-xs transition shadow-sm flex items-center justify-between group"
               >
                 <span>📐 Generate architecture diagram</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-300 transition" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition" />
               </button>
             </div>
           </div>
@@ -382,11 +488,11 @@ export function TimelinePanel({
               return (
                 <div key={evt.id} className="flex flex-col space-y-1 items-end">
                   <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                    <span className="font-semibold text-emerald-400">{evt.actor}</span>
+                    <span className="font-semibold text-indigo-600">{evt.actor}</span>
                     <span>•</span>
                     <span>{new Date(evt.ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <div className="bg-gradient-to-r from-slate-850 to-slate-800 border border-white/10 text-slate-100 rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[90%] shadow-md leading-relaxed text-xs">
+                  <div className="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[90%] shadow-md leading-relaxed text-xs">
                     {evt.payload.text}
                   </div>
                 </div>
@@ -395,10 +501,10 @@ export function TimelinePanel({
 
             if (evt.type === "tool_call") {
               return (
-                <div key={evt.id} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/80 border border-white/[0.06] rounded-lg font-mono text-[10px] text-slate-400 shadow-sm">
-                  <Wrench className="w-3 h-3 text-purple-400 shrink-0" />
-                  <span className="text-purple-300 font-semibold">{evt.payload.tool}</span>
-                  <span className="text-slate-500 truncate">
+                <div key={evt.id} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl font-mono text-[10px] text-slate-600 shadow-sm">
+                  <Wrench className="w-3 h-3 text-indigo-500 shrink-0" />
+                  <span className="text-indigo-600 font-semibold">{evt.payload.tool}</span>
+                  <span className="text-slate-400 truncate">
                     ({JSON.stringify(evt.payload.args)})
                   </span>
                 </div>
@@ -417,8 +523,8 @@ export function TimelinePanel({
                   : res?.message || "Executed";
 
               return (
-                <div key={evt.id} className="flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] text-slate-500 font-mono pl-3">
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                <div key={evt.id} className="flex items-center gap-1.5 px-3 py-0.5 text-[10px] text-slate-500 font-mono pl-3">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500 shrink-0" />
                   <span>{evt.payload.tool} → {summary}</span>
                 </div>
               );
@@ -427,13 +533,13 @@ export function TimelinePanel({
             if (evt.type === "agent_message") {
               return (
                 <div key={evt.id} className="flex flex-col space-y-1.5 items-start">
-                  <div className="flex items-center gap-1.5 text-[10px] text-purple-300">
-                    <Sparkles className="w-3 h-3 text-purple-400" />
+                  <div className="flex items-center gap-1.5 text-[10px] text-indigo-600">
+                    <Sparkles className="w-3 h-3 text-indigo-500" />
                     <span className="font-bold">Pair Master</span>
-                    <span className="text-slate-500">•</span>
-                    <span className="text-slate-500">{new Date(evt.ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-slate-400">•</span>
+                    <span className="text-slate-400">{new Date(evt.ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <div className="bg-purple-950/25 border border-purple-500/30 text-slate-200 rounded-2xl rounded-tl-sm px-3.5 py-3 shadow-md leading-relaxed text-xs backdrop-blur">
+                  <div className="bg-white border border-slate-200/90 text-slate-800 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm leading-relaxed text-xs">
                     {renderMessageContent(evt.payload.text)}
                   </div>
                 </div>
@@ -442,8 +548,8 @@ export function TimelinePanel({
 
             if (evt.type === "agent_error") {
               return (
-                <div key={evt.id} className="flex items-start gap-2 p-2.5 bg-rose-950/40 border border-rose-500/30 rounded-xl text-rose-300 text-[11px] shadow-sm">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-rose-400" />
+                <div key={evt.id} className="flex items-start gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-[11px] shadow-sm">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-rose-500" />
                   <span>{evt.payload.message}</span>
                 </div>
               );
@@ -454,14 +560,14 @@ export function TimelinePanel({
         )}
 
         {isAsking && (
-          <div className="flex items-center justify-between p-2.5 bg-purple-950/30 border border-purple-500/30 rounded-xl text-slate-300 text-xs backdrop-blur shadow-sm">
+          <div className="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-200 rounded-2xl text-indigo-800 text-xs shadow-sm">
             <div className="flex items-center gap-2">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
-              <span>Inspecting AST & slicing lines...</span>
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+              <span className="font-medium">Inspecting AST & slicing lines...</span>
             </div>
             <button
               onClick={handleCancel}
-              className="text-[10px] text-rose-400 hover:text-rose-300 px-2 py-0.5 rounded-full border border-rose-500/40 bg-rose-950/50 transition font-medium"
+              className="text-[10px] text-rose-600 hover:text-rose-700 px-2.5 py-0.5 rounded-full border border-rose-300 bg-white transition font-semibold"
             >
               Cancel
             </button>
@@ -471,9 +577,9 @@ export function TimelinePanel({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Apple Composer Input Capsule */}
-      <div className="p-3 border-t border-white/[0.08] bg-slate-900/80 backdrop-blur-xl shrink-0">
-        <div className="relative flex flex-col bg-slate-950/90 border border-white/[0.08] focus-within:border-purple-500/60 rounded-2xl p-2.5 transition shadow-inner group">
+      {/* Floating Chat Input Pill */}
+      <div className="p-3.5 border-t border-slate-200/80 bg-white shrink-0">
+        <div className="relative flex flex-col bg-slate-50 border border-slate-200 focus-within:border-indigo-500 rounded-2xl p-2.5 transition shadow-inner group">
           <textarea
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
@@ -481,14 +587,14 @@ export function TimelinePanel({
             disabled={isAsking}
             placeholder="Ask Pair Master... (Enter to send)"
             rows={2}
-            className="w-full bg-transparent text-xs text-slate-200 placeholder-slate-500 resize-none outline-none disabled:opacity-50 font-sans"
+            className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 resize-none outline-none disabled:opacity-50 font-sans"
           />
-          <div className="flex items-center justify-between pt-1 border-t border-white/[0.04] mt-1">
-            <span className="text-[10px] text-slate-500">Return to send</span>
+          <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 mt-1">
+            <span className="text-[10px] text-slate-400">Return to send</span>
             <button
               onClick={() => handleAsk()}
               disabled={isAsking || !inputPrompt.trim()}
-              className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 text-white rounded-full transition shadow-md shadow-purple-950/40 text-[11px] font-medium"
+              className="flex items-center gap-1 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-full transition shadow-md shadow-indigo-500/20 text-[11px] font-medium"
               title="Send to Pair Master"
             >
               {isAsking ? (

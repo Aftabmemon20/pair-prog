@@ -103,12 +103,12 @@ export function VoiceButton({ roomId, onSpeechTranscribed }: VoiceButtonProps) {
     <button
       onClick={toggleRecording}
       disabled={isTranscribing}
-      className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border font-medium transition shadow-sm select-none ${
+      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border font-medium transition shadow-sm select-none ${
         isRecording
-          ? "bg-rose-950/80 border-rose-600 text-rose-200 animate-pulse ring-2 ring-rose-500/30"
+          ? "bg-rose-100 border-rose-300 text-rose-700 animate-pulse ring-2 ring-rose-400/30"
           : isTranscribing
-          ? "bg-purple-950/40 border-purple-800 text-purple-300 opacity-80"
-          : "bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/60 text-slate-300 hover:text-slate-100"
+          ? "bg-indigo-100 border-indigo-200 text-indigo-700 opacity-90"
+          : "bg-slate-100 hover:bg-slate-200/80 border-slate-200/70 text-slate-600 hover:text-slate-900"
       }`}
       title={
         isRecording
@@ -120,17 +120,17 @@ export function VoiceButton({ roomId, onSpeechTranscribed }: VoiceButtonProps) {
     >
       {isTranscribing ? (
         <>
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
-          <span className="hidden sm:inline">Transcribing...</span>
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+          <span className="hidden sm:inline font-semibold">Transcribing...</span>
         </>
       ) : isRecording ? (
         <>
-          <Radio className="w-3.5 h-3.5 text-rose-400 animate-ping" />
-          <span className="font-semibold text-rose-300">Listening...</span>
+          <Radio className="w-3.5 h-3.5 text-rose-600 animate-ping" />
+          <span className="font-semibold text-rose-700">Listening...</span>
         </>
       ) : (
         <>
-          <Mic className="w-3.5 h-3.5 text-slate-400" />
+          <Mic className="w-3.5 h-3.5 text-indigo-500" />
           <span className="hidden sm:inline">Voice</span>
         </>
       )}
