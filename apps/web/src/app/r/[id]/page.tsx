@@ -446,6 +446,8 @@ export default function RoomPage() {
               onSelectLine={handleSelectLine}
               pendingPrompt={pendingAgentPrompt}
               onClearPendingPrompt={() => setPendingAgentPrompt(null)}
+              ownership={ownership}
+              runResult={runResult}
             />
           </div>
         </div>

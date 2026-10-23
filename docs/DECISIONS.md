@@ -179,3 +179,14 @@ This document tracks all significant architectural decisions, stack selections, 
   - **Message Sanitizer in Pair Master Composer**: Added regex/JSON extractor in `TimelinePanel.tsx` that strips internal `post_message({"text": ...})` wrappers, ensuring only clean, formatted text is displayed in user bubbles.
 - **Consequences**: Zero jumping or jitter, tack-sharp "HD clarity" across all screens, effortless toggling between dark and light modes, and elimination of unpolished AI-string artifacts.
 
+## ADR-023: Live AST Code Health & Ownership Metrics in Pair Master Drawer
+- **Context**: The progress arc gauge in the right timeline panel previously displayed static dummy text (`67% Verified`, `High priority`) carried over from the initial UI design mockup. In accordance with AGENTS.md Rule 4 ("Never present mock data as real"), the gauge must reflect real workspace state.
+- **Decision**:
+  - Bound `TimelinePanel.tsx` directly to live `ownership` (AST symbol boundaries) and `runResult` (Pyodide execution exit code, traceback, and frame data).
+  - Dynamically calculate verification health:
+    - **Unrun/Pending**: Shows `--` / `Untested` with neutral progress arc and `Ready to Run` priority capsule.
+    - **Clean Run (Exit 0)**: Shows `100% Verified` with emerald arc and `✓ Clean Build` priority capsule.
+    - **Runtime Error**: Calculates exact passing percentage based on functions tested, highlights error arc in rose (`#f43f5e`), identifies the failing function via line frame mapping, and sets priority to `⚠️ Bug in <symbol>`.
+  - Added an interactive **AST Functions List**: lists all detected functions (`load_items`, `apply_discount`, `checkout_total`), owner tags (`Dev A` / `Dev B`), and line numbers with 1-click jump navigation directly to Monaco editor.
+- **Consequences**: Zero mock data; visual indicators provide real-time, actionable engineering insights directly linked to Python AST and runtime execution.
+

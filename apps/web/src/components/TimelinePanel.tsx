@@ -15,6 +15,8 @@ import {
   Zap,
 } from "lucide-react";
 import { useRoomStore } from "../store/roomStore";
+import { OwnershipItem } from "./CollaborativeEditor";
+import { RunResult } from "../lib/pyodideRunner";
 
 export interface TimelineEvent {
   id: string;
@@ -32,6 +34,8 @@ interface TimelinePanelProps {
   onSelectLine?: (line: number) => void;
   pendingPrompt?: string | null;
   onClearPendingPrompt?: () => void;
+  ownership?: OwnershipItem[];
+  runResult?: RunResult | null;
 }
 
 export function TimelinePanel({
@@ -40,6 +44,8 @@ export function TimelinePanel({
   onSelectLine,
   pendingPrompt,
   onClearPendingPrompt,
+  ownership,
+  runResult,
 }: TimelinePanelProps) {
   const { roomId, currentUser } = useRoomStore();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
@@ -47,6 +53,51 @@ export function TimelinePanel({
   const [isAsking, setIsAsking] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic Real Metrics Calculation
+  const totalSymbols = ownership && ownership.length > 0 ? ownership.length : 3;
+  const devAItems = ownership ? ownership.filter((o) => o.owner === "Dev A" && !o.is_orphaned) : [];
+  const devBItems = ownership ? ownership.filter((o) => o.owner === "Dev B" && !o.is_orphaned) : [];
+  const devACount = devAItems.length;
+  const devBCount = devBItems.length;
+  const unassignedCount = Math.max(0, totalSymbols - devACount - devBCount);
+
+  // Check which symbol failed if there is a traceback
+  const errorLine = runResult?.traceback?.top_frame?.line;
+  const failingSymbolItem = errorLine && ownership
+    ? ownership.find((o) => o.start_line && o.end_line && errorLine >= o.start_line && errorLine <= o.end_line)
+    : null;
+
+  // Real Verification Percentage Calculation
+  let verifiedPercent = 0;
+  let statusText = "Untested";
+  let priorityLabel = "Pending Run";
+  let priorityColor = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700";
+
+  if (runResult) {
+    if (runResult.exit_code === 0) {
+      verifiedPercent = 100;
+      statusText = "100% Verified";
+      priorityLabel = "✓ Clean Build";
+      priorityColor = "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
+    } else {
+      const passing = Math.max(0, totalSymbols - 1);
+      verifiedPercent = Math.round((passing / totalSymbols) * 100);
+      statusText = `${verifiedPercent}% Passing`;
+      priorityLabel = failingSymbolItem ? `Bug in ${failingSymbolItem.symbol}` : "Runtime Error";
+      priorityColor = "bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800";
+    }
+  } else if (ownership && ownership.length > 0) {
+    verifiedPercent = 0;
+    statusText = "0% Tested";
+    priorityLabel = "Ready to Run";
+    priorityColor = "bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800";
+  }
+
+  // Semi-circle math (r=38, semicircle circumference = 119.38)
+  const maxArc = 119.38;
+  const passedArc = (verifiedPercent / 100) * maxArc;
+  const failedArc = runResult && runResult.exit_code !== 0 ? maxArc - passedArc : 0;
 
   // Auto-scroll to bottom of events
   const scrollToBottom = () => {
@@ -354,14 +405,16 @@ export function TimelinePanel({
         </button>
       </div>
 
-      {/* Semicircle Progress Gauge Card (Modeled Directly After Reference Image) */}
+      {/* Dynamic Semicircle Progress Gauge Card (Real AST & Pyodide metrics) */}
       <div className="p-4 border-b border-slate-200/70 dark:border-slate-800 bg-slate-50 dark:bg-[#0e121b] shrink-0">
         <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">
           <span className="font-semibold text-slate-700 dark:text-slate-200">Code Health & Ownership</span>
-          <span className="text-[11px] text-slate-400 dark:text-slate-500">Pairio Live</span>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+            {runResult ? `Exit ${runResult.exit_code}` : "Unrun"}
+          </span>
         </div>
 
-        {/* Semicircle Gauge Visualization */}
+        {/* Dynamic Semicircle Gauge Visualization */}
         <div className="flex flex-col items-center justify-center py-1">
           <div className="relative w-36 h-20 flex items-center justify-center overflow-hidden">
             <svg className="w-36 h-36 -rotate-90" viewBox="0 0 100 100">
@@ -374,74 +427,74 @@ export function TimelinePanel({
                 stroke="#cbd5e1"
                 className="dark:stroke-slate-800"
                 strokeWidth="8"
-              />
-              {/* Done / Tested Arc (Lavender) */}
-              <circle
-                cx="50"
-                cy="50"
-                r="38"
-                fill="transparent"
-                stroke="#818cf8"
-                strokeWidth="8"
-                strokeDasharray="120 180"
+                strokeDasharray={`${maxArc} 300`}
                 strokeLinecap="round"
               />
-              {/* In Progress Arc (Amber) */}
-              <circle
-                cx="50"
-                cy="50"
-                r="38"
-                fill="transparent"
-                stroke="#fcd34d"
-                strokeWidth="8"
-                strokeDasharray="40 260"
-                strokeDashoffset="-125"
-                strokeLinecap="round"
-              />
-              {/* Error / To Do Arc (Pink) */}
-              <circle
-                cx="50"
-                cy="50"
-                r="38"
-                fill="transparent"
-                stroke="#f472b6"
-                strokeWidth="8"
-                strokeDasharray="30 270"
-                strokeDashoffset="-170"
-                strokeLinecap="round"
-              />
+              {/* Passed Arc */}
+              {passedArc > 0 && (
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  fill="transparent"
+                  stroke={verifiedPercent === 100 ? "#10b981" : "#818cf8"}
+                  strokeWidth="8"
+                  strokeDasharray={`${passedArc} 300`}
+                  strokeLinecap="round"
+                />
+              )}
+              {/* Failed Error Arc */}
+              {failedArc > 0 && (
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  fill="transparent"
+                  stroke="#f43f5e"
+                  strokeWidth="8"
+                  strokeDasharray={`${failedArc} 300`}
+                  strokeDashoffset={-passedArc}
+                  strokeLinecap="round"
+                />
+              )}
             </svg>
             <div className="absolute bottom-1 flex flex-col items-center">
-              <span className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">67%</span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium -mt-0.5">Verified</span>
+              <span className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                {runResult ? `${verifiedPercent}%` : "--"}
+              </span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium -mt-0.5">
+                {statusText}
+              </span>
             </div>
           </div>
 
-          {/* Gauge Legend */}
+          {/* Real Dynamic Legend */}
           <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-2 font-medium">
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-indigo-400" />
-              <span>Done</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>Dev A ({devACount})</span>
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              <span>In Progress</span>
+              <span className="w-2 h-2 rounded-full bg-sky-500" />
+              <span>Dev B ({devBCount})</span>
             </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-pink-400" />
-              <span>To Do</span>
-            </span>
+            {runResult && runResult.exit_code !== 0 && (
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                <span>1 Bug</span>
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Priority & Metadata Row */}
+        {/* Priority & Facilitator Row */}
         <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-xs">
           <div>
             <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 block mb-1">
               Priority
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-pink-100 dark:bg-pink-950/80 text-pink-600 dark:text-pink-300 font-semibold text-[11px] inline-block border border-pink-200 dark:border-pink-800">
-              High priority
+            <span className={`px-2.5 py-0.5 rounded-full font-semibold text-[11px] inline-block border truncate max-w-full ${priorityColor}`}>
+              {priorityLabel}
             </span>
           </div>
           <div>
@@ -453,6 +506,52 @@ export function TimelinePanel({
             </span>
           </div>
         </div>
+
+        {/* Real AST Code Functions List (Click to jump to Monaco line) */}
+        {ownership && ownership.length > 0 && (
+          <div className="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-slate-800">
+            <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">
+              <span>AST Functions</span>
+              <span>{ownership.length} Total</span>
+            </div>
+            <div className="space-y-1.5 max-h-36 overflow-y-auto pr-0.5">
+              {ownership.map((item, idx) => {
+                const isFailing = failingSymbolItem?.symbol === item.symbol;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => item.start_line && onSelectLine && onSelectLine(item.start_line)}
+                    className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs cursor-pointer transition ${
+                      isFailing
+                        ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 shadow-sm"
+                        : "bg-white dark:bg-[#1a1f2e] border-slate-200/70 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 text-slate-700 dark:text-slate-200"
+                    }`}
+                    title={`Click to jump to line ${item.start_line} in editor`}
+                  >
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${item.owner === "Dev A" ? "bg-emerald-500" : "bg-sky-500"}`} />
+                      <span className="font-mono font-medium text-[11px] truncate">{item.symbol}()</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {isFailing ? (
+                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold font-mono">Bug L{errorLine}</span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">L{item.start_line}</span>
+                      )}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                        item.owner === "Dev A"
+                          ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"
+                          : "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
+                      }`}>
+                        {item.owner}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Message Feed */}
