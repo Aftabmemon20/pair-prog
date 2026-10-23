@@ -170,3 +170,12 @@ This document tracks all significant architectural decisions, stack selections, 
   - **Semicircular Progress Gauge in Pair Master Panel**: Modeled the right timeline drawer after the reference UI, featuring a dynamic SVG arc gauge showing verified test status (`67% Verified/Tested`), priority capsules (`High priority`), facilitator badge, and floating prompt inputs.
 - **Consequences**: Drastically reduced visual noise and cognitive load, achieved a top-tier modern aesthetic, and preserved 100% of underlying pairing, execution, drawing, and AI features.
 
+## ADR-022: Rock-Solid HD Clarity, Jitter Elimination & First-Class Dark Mode
+- **Context**: The previous CSS animation (`ambient-breathe`) used `transform: scale(1.01)` and `filter: hue-rotate()`, which caused continuous viewport shifting ("jumping"), subpixel font blurring, and GPU repaint lag. Additionally, raw tool wrappers (`post_message({"text": "..."})`) were leaking into the chat UI, and users requested a native dark mode.
+- **Decision**:
+  - **Eliminate Scaling Animations & Blur Filter**: Removed `transform: scale()` and viewport-level `backdrop-filter: blur()` from `globals.css` and `page.tsx`. Replaced with rock-solid, fixed layout positioning and crisp solid backgrounds.
+  - **First-Class Dark / Light Mode System**: Added `theme` state (`"dark" | "light"`) in `roomStore` with a quick 1-click Sun/Moon toggle in `PresenceBar`.
+  - **Dual High-Contrast Monaco Themes**: Configured both `pairio-dark-modern` (deep slate `#121622` with vibrant syntax highlights) and `pairio-light-modern` with integer line heights, crisp typography (`JetBrains Mono`, `Fira Code`), and disabled smooth cursor jitter.
+  - **Message Sanitizer in Pair Master Composer**: Added regex/JSON extractor in `TimelinePanel.tsx` that strips internal `post_message({"text": ...})` wrappers, ensuring only clean, formatted text is displayed in user bubbles.
+- **Consequences**: Zero jumping or jitter, tack-sharp "HD clarity" across all screens, effortless toggling between dark and light modes, and elimination of unpolished AI-string artifacts.
+

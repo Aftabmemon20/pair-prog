@@ -150,7 +150,7 @@ test_inventory_flow()
 
 export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorProps>(
   ({ roomId, onRunShortcut }, ref) => {
-    const { currentUser, setConnectionStatus, setParticipants } = useRoomStore();
+    const { currentUser, setConnectionStatus, setParticipants, theme } = useRoomStore();
 
     // Editor & Monaco Refs
     const editorRef = useRef<any>(null);
@@ -163,6 +163,15 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
     const ownershipDecorationsRef = useRef<any[]>([]);
     const annotationDecorationsRef = useRef<any[]>([]);
     const [editorReady, setEditorReady] = useState(false);
+
+    // Sync theme dynamically with Monaco instance
+    useEffect(() => {
+      if (monacoRef.current) {
+        monacoRef.current.editor.setTheme(
+          theme === "dark" ? "pairio-dark-modern" : "pairio-light-modern"
+        );
+      }
+    }, [theme]);
 
     // Multi-File Workspace State
     const [files, setFiles] = useState<WorkspaceFile[]>(DEFAULT_WORKSPACE_FILES);
@@ -517,6 +526,7 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
           { token: "string", foreground: "0284c7" },
           { token: "number", foreground: "10b981" },
           { token: "identifier", foreground: "1e293b" },
+          { token: "function", foreground: "4338ca" },
         ],
         colors: {
           "editor.background": "#ffffff",
@@ -531,7 +541,34 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
         },
       });
 
-      monaco.editor.setTheme("pairio-light-modern");
+      // Define crisp, tack-sharp dark editor palette
+      monaco.editor.defineTheme("pairio-dark-modern", {
+        base: "vs-dark",
+        inherit: true,
+        rules: [
+          { token: "comment", foreground: "64748b", fontStyle: "italic" },
+          { token: "keyword", foreground: "818cf8", fontStyle: "bold" },
+          { token: "string", foreground: "38bdf8" },
+          { token: "number", foreground: "34d399" },
+          { token: "identifier", foreground: "e2e8f0" },
+          { token: "function", foreground: "60a5fa" },
+        ],
+        colors: {
+          "editor.background": "#121622",
+          "editor.foreground": "#f1f5f9",
+          "editor.lineHighlightBackground": "#181d2e",
+          "editorCursor.foreground": "#818cf8",
+          "editorWhitespace.foreground": "#1e293b",
+          "editorIndentGuide.background": "#1e293b",
+          "editorIndentGuide.activeBackground": "#334155",
+          "editorLineNumber.foreground": "#475569",
+          "editorLineNumber.activeForeground": "#94a3b8",
+        },
+      });
+
+      monaco.editor.setTheme(
+        theme === "dark" ? "pairio-dark-modern" : "pairio-light-modern"
+      );
 
       // Bind Ctrl+Enter / Cmd+Enter to run shortcut
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
@@ -578,48 +615,48 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
 
         {/* Collapsible VS Code / Zed Style Project Explorer Sidebar */}
         <div
-          className={`h-full flex flex-col border-r border-slate-200/80 bg-slate-50/70 transition-all duration-300 ease-in-out shrink-0 ${
+          className={`h-full flex flex-col border-r border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-[#0e121b] transition-all duration-300 ease-in-out shrink-0 ${
             isSidebarOpen ? "w-52 md:w-56" : "w-0 overflow-hidden border-none"
           }`}
         >
           {/* Explorer Header */}
-          <div className="h-11 px-3.5 border-b border-slate-200/70 flex items-center justify-between text-xs text-slate-700 bg-white/60">
-            <div className="flex items-center gap-1.5 font-semibold tracking-wider text-[11px] uppercase text-slate-500">
+          <div className="h-11 px-3.5 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-[#121622]">
+            <div className="flex items-center gap-1.5 font-semibold tracking-wider text-[11px] uppercase text-slate-500 dark:text-slate-400">
               <FolderOpen className="w-3.5 h-3.5 text-indigo-500" />
               <span>Explorer</span>
             </div>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleCreateNewFile}
-                className="p-1 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-lg transition"
+                className="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-lg transition"
                 title="New Python File"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={handleOpenFolder}
-                className="p-1 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-lg transition"
+                className="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-lg transition"
                 title="Open Local Folder"
               >
-                <UploadCloud className="w-3.5 h-3.5 text-indigo-600" />
+                <UploadCloud className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
               </button>
             </div>
           </div>
 
           {/* Quick Action: Open Folder Banner */}
-          <div className="p-2.5 border-b border-slate-200/60 bg-white/40">
+          <div className="p-2.5 border-b border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-[#121622]/40">
             <button
               onClick={handleOpenFolder}
-              className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200/60 text-[11px] text-indigo-700 font-semibold transition shadow-sm group"
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/50 border border-indigo-200/60 dark:border-indigo-800/60 text-[11px] text-indigo-700 dark:text-indigo-300 font-semibold transition shadow-sm group"
             >
-              <FolderOpen className="w-3.5 h-3.5 text-indigo-600 group-hover:scale-110 transition-transform" />
+              <FolderOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
               <span>Open Local Folder</span>
             </button>
           </div>
 
           {/* File Tree List */}
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+            <div className="px-2 py-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
               <ChevronDown className="w-3 h-3" />
               <span>Workspace Files ({files.length})</span>
             </div>
@@ -632,8 +669,8 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                   onClick={() => handleSelectFile(file.id)}
                   className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs cursor-pointer transition ${
                     isActive
-                      ? "bg-white text-indigo-600 font-semibold border border-slate-200/80 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+                      ? "bg-white dark:bg-[#1a1f2e] text-indigo-600 dark:text-indigo-400 font-semibold border border-slate-200/80 dark:border-slate-700 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
@@ -646,7 +683,7 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                   </div>
 
                   {file.isCRDT && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-medium border border-emerald-200 dark:border-emerald-800">
                       Live
                     </span>
                   )}
@@ -656,25 +693,25 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
           </div>
 
           {/* Sidebar Footer Indicator */}
-          <div className="p-3 border-t border-slate-200/70 bg-white/70 text-[10px] text-slate-500 flex items-center justify-between">
+          <div className="p-3 border-t border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-[#121622] text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
-              <span className="font-medium text-slate-600">Pyodide Sandbox</span>
+              <span className="font-medium text-slate-600 dark:text-slate-300">Pyodide Sandbox</span>
             </span>
-            <span className="font-mono text-slate-400">Python 3.12</span>
+            <span className="font-mono text-slate-400 dark:text-slate-500">Python 3.12</span>
           </div>
         </div>
 
         {/* Main Editor Canvas + Tabs */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-white">
+        <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-white dark:bg-[#121622]">
           {/* Visual Editor Tabs Bar */}
-          <div className="h-11 border-b border-slate-200/80 bg-slate-50/70 px-3 flex items-center justify-between gap-2 overflow-x-auto shrink-0 select-none">
+          <div className="h-11 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-[#0e121b] px-3 flex items-center justify-between gap-2 overflow-x-auto shrink-0 select-none">
             {/* Left: Sidebar Toggle & Tabs */}
             <div className="flex items-center gap-1.5 h-full overflow-x-auto">
               {/* Sidebar Collapse/Expand Button */}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-1.5 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-lg transition mr-1"
+                className="p-1.5 hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-lg transition mr-1"
                 title={isSidebarOpen ? "Hide File Explorer" : "Show File Explorer"}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -692,8 +729,8 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                     onClick={() => handleSelectFile(tabId)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer transition ${
                       isActive
-                        ? "bg-white text-slate-900 border border-slate-200/90 shadow-sm font-semibold"
-                        : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/40"
+                        ? "bg-white dark:bg-[#121622] text-slate-900 dark:text-slate-100 border border-slate-200/90 dark:border-slate-700 shadow-sm font-semibold"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/40 dark:hover:bg-slate-800/40"
                     }`}
                   >
                     <FileCode
@@ -706,7 +743,7 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
                     {openTabIds.length > 1 && (
                       <button
                         onClick={(e) => handleCloseTab(e, tabId)}
-                        className="p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition"
+                        className="p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition"
                         title="Close Tab"
                       >
                         <X className="w-3 h-3" />
@@ -719,29 +756,29 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
 
             {/* Right: Active file badge */}
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[11px] font-mono text-slate-400 hidden md:inline">
-                Editing: <strong className="text-slate-700 font-semibold">{activeFile.name}</strong>
+              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 hidden md:inline">
+                Editing: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{activeFile.name}</strong>
               </span>
             </div>
           </div>
 
           {/* Monaco Editor Container */}
-          <div className="flex-1 relative overflow-hidden bg-white">
+          <div className="flex-1 relative overflow-hidden bg-white dark:bg-[#121622]">
             <Editor
               height="100%"
               defaultLanguage="python"
-              theme="pairio-light-modern"
+              theme={theme === "dark" ? "pairio-dark-modern" : "pairio-light-modern"}
               options={{
                 fontSize: 13.5,
                 fontFamily:
-                  "'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace",
+                  "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Monaco, Consolas, monospace",
                 fontLigatures: true,
                 lineHeight: 22,
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
-                smoothScrolling: true,
-                cursorBlinking: "smooth",
+                smoothScrolling: false,
+                cursorBlinking: "blink",
                 lineNumbersMinChars: 3,
                 padding: { top: 12, bottom: 12 },
               }}

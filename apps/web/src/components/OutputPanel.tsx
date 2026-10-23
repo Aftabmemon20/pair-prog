@@ -64,34 +64,34 @@ export function OutputPanel({
 
   if (!runResult && symbols.length === 0 && !liveDiagramSrc && !diagramSrc) {
     return (
-      <div className="h-10 border-t border-slate-200/80 bg-slate-50/80 backdrop-blur-md px-4 flex items-center justify-between text-xs text-slate-500 select-none">
+      <div className="h-10 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-[#0e121b] px-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 select-none">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981] animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
           <Terminal className="w-3.5 h-3.5 text-indigo-500" />
-          <span className="font-semibold text-slate-700">Output Diagnostics</span>
-          <span className="text-[11px] text-slate-400 font-mono">({activeFileName})</span>
+          <span className="font-semibold text-slate-700 dark:text-slate-200">Output Diagnostics</span>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">({activeFileName})</span>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
-          <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">Ctrl+↵ Run</span>
-          <span className="hidden sm:inline text-slate-400">• Pyodide In-Browser</span>
+        <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+          <span className="px-2 py-0.5 rounded-full bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">Ctrl+↵ Run</span>
+          <span className="hidden sm:inline text-slate-400 dark:text-slate-500">• Pyodide In-Browser</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`border-t border-slate-200/80 bg-white/95 backdrop-blur-xl flex flex-col transition-all duration-300 ease-in-out ${
+    <div className={`border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#121622] flex flex-col transition-all duration-300 ease-in-out ${
       collapsed ? "h-11" : "h-64 sm:h-72"
     }`}>
       {/* Panel Header */}
-      <div className="h-11 px-4 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between text-xs select-none">
-        <div className="flex items-center gap-1 p-0.5 bg-slate-200/60 rounded-full border border-slate-200/80">
+      <div className="h-11 px-4 bg-slate-50 dark:bg-[#0e121b] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs select-none">
+        <div className="flex items-center gap-1 p-0.5 bg-slate-200/60 dark:bg-[#1a1f2e] rounded-full border border-slate-200/80 dark:border-slate-700">
           <button
             onClick={() => setActiveTab("terminal")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition ${
               activeTab === "terminal"
-                ? "bg-white text-indigo-600 shadow-sm font-semibold"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-[#121622] text-indigo-600 dark:text-indigo-400 shadow-sm font-semibold"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />
@@ -102,8 +102,8 @@ export function OutputPanel({
             onClick={() => setActiveTab("traceback")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition ${
               activeTab === "traceback"
-                ? "bg-white text-indigo-600 shadow-sm font-semibold"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-[#121622] text-indigo-600 dark:text-indigo-400 shadow-sm font-semibold"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
           >
             <Bug className={`w-3.5 h-3.5 ${runResult?.exit_code !== 0 ? "text-rose-500" : ""}`} />
@@ -117,8 +117,8 @@ export function OutputPanel({
             onClick={() => setActiveTab("symbols")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition ${
               activeTab === "symbols"
-                ? "bg-white text-indigo-600 shadow-sm font-semibold"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-[#121622] text-indigo-600 dark:text-indigo-400 shadow-sm font-semibold"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -129,8 +129,8 @@ export function OutputPanel({
             onClick={() => setActiveTab("diagram")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition ${
               activeTab === "diagram"
-                ? "bg-white text-indigo-600 shadow-sm font-semibold"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-[#121622] text-indigo-600 dark:text-indigo-400 shadow-sm font-semibold"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
           >
             <Workflow className="w-3.5 h-3.5" />
@@ -191,26 +191,26 @@ export function OutputPanel({
 
       {/* Tab Content */}
       {!collapsed && (
-        <div className="flex-1 overflow-auto p-4 font-mono text-xs bg-slate-50/70 select-text text-slate-800">
+        <div className="flex-1 overflow-auto p-4 font-mono text-xs bg-slate-50 dark:bg-[#0e121b] select-text text-slate-800 dark:text-slate-100">
           {activeTab === "terminal" && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 pb-2 mb-2 border-b border-slate-200 text-[11px] text-slate-500 font-mono">
-                <span className="text-indigo-600 font-bold">$</span>
-                <span className="text-slate-800 font-medium">python {activeFileName}</span>
-                <span className="text-slate-400 ml-auto hidden sm:inline text-[10px]">Pyodide WebWorker Sandbox</span>
+              <div className="flex items-center gap-2 pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                <span className="text-indigo-600 dark:text-indigo-400 font-bold">$</span>
+                <span className="text-slate-800 dark:text-slate-200 font-medium">python {activeFileName}</span>
+                <span className="text-slate-400 dark:text-slate-500 ml-auto hidden sm:inline text-[10px]">Pyodide WebWorker Sandbox</span>
               </div>
               {runResult?.stdout && (
-                <pre className="text-slate-800 whitespace-pre-wrap leading-relaxed font-mono">
+                <pre className="text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed font-mono">
                   {runResult.stdout}
                 </pre>
               )}
               {runResult?.stderr && (
-                <pre className="text-rose-600 whitespace-pre-wrap leading-relaxed bg-rose-50 p-3 rounded-xl border border-rose-200 font-mono">
+                <pre className="text-rose-600 dark:text-rose-300 whitespace-pre-wrap leading-relaxed bg-rose-50 dark:bg-rose-950/50 p-3 rounded-xl border border-rose-200 dark:border-rose-900 font-mono">
                   {runResult.stderr}
                 </pre>
               )}
               {!runResult?.stdout && !runResult?.stderr && (
-                <div className="text-slate-400 italic">No output produced. Press Run or Ctrl+Enter to execute.</div>
+                <div className="text-slate-400 dark:text-slate-500 italic">No output produced. Press Run or Ctrl+Enter to execute.</div>
               )}
             </div>
           )}
@@ -219,12 +219,12 @@ export function OutputPanel({
             <div>
               {runResult?.traceback ? (
                 <div className="space-y-3">
-                  <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
+                  <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
                     <div>
-                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold uppercase bg-rose-100 text-rose-700 mr-2 border border-rose-200">
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold uppercase bg-rose-100 dark:bg-rose-900/80 text-rose-700 dark:text-rose-200 mr-2 border border-rose-200 dark:border-rose-800">
                         {runResult.traceback.error_type}
                       </span>
-                      <span className="text-rose-900 font-semibold">
+                      <span className="text-rose-900 dark:text-rose-100 font-semibold">
                         {runResult.traceback.error_message}
                       </span>
                     </div>
@@ -249,27 +249,27 @@ export function OutputPanel({
                   </div>
 
                   <div className="space-y-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       Call Stack Frames:
                     </span>
                     {runResult.traceback.frames.map((frame, idx) => (
                       <div
                         key={idx}
                         onClick={() => onSelectLine && onSelectLine(frame.line)}
-                        className="p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 cursor-pointer transition shadow-sm group"
+                        className="p-3 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-500 cursor-pointer transition shadow-sm group"
                       >
-                        <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1">
                           <span>
-                            File <span className="text-slate-800 font-semibold">{frame.file}</span>, line{" "}
-                            <span className="text-amber-600 font-bold">{frame.line}</span> in{" "}
-                            <span className="text-indigo-600 font-medium">{frame.function}</span>
+                            File <span className="text-slate-800 dark:text-slate-200 font-semibold">{frame.file}</span>, line{" "}
+                            <span className="text-amber-600 dark:text-amber-400 font-bold">{frame.line}</span> in{" "}
+                            <span className="text-indigo-600 dark:text-indigo-400 font-medium">{frame.function}</span>
                           </span>
-                          <span className="text-[10px] text-slate-400 group-hover:text-indigo-600 transition">
+                          <span className="text-[10px] text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
                             Click to jump
                           </span>
                         </div>
                         {frame.code_line && (
-                          <div className="pl-3 border-l-2 border-rose-500 text-rose-700 font-mono text-[11px]">
+                          <div className="pl-3 border-l-2 border-rose-500 text-rose-700 dark:text-rose-300 font-mono text-[11px]">
                             {frame.code_line}
                           </div>
                         )}
@@ -278,14 +278,14 @@ export function OutputPanel({
                   </div>
                 </div>
               ) : (
-                <div className="text-slate-400 italic">No structured traceback available.</div>
+                <div className="text-slate-400 dark:text-slate-500 italic">No structured traceback available.</div>
               )}
             </div>
           )}
 
           {activeTab === "symbols" && (
             <div className="space-y-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 AST Parsed Symbols ({symbols.length}):
               </span>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -293,18 +293,18 @@ export function OutputPanel({
                   <div
                     key={idx}
                     onClick={() => onSelectLine && onSelectLine(sym.start_line)}
-                    className="p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 cursor-pointer transition shadow-sm flex items-center justify-between"
+                    className="p-3 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-500 cursor-pointer transition shadow-sm flex items-center justify-between"
                   >
                     <div>
-                      <span className="text-indigo-600 font-bold text-xs">{sym.name}</span>
-                      <span className="text-[10px] text-slate-400 ml-2 uppercase font-medium">({sym.kind})</span>
+                      <span className="text-indigo-600 dark:text-indigo-400 font-bold text-xs">{sym.name}</span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-2 uppercase font-medium">({sym.kind})</span>
                       {sym.args.length > 0 && (
-                        <div className="text-[10px] text-slate-500 mt-0.5">
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                           args: ({sym.args.join(", ")})
                         </div>
                       )}
                     </div>
-                    <span className="text-[11px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                    <span className="text-[11px] font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                       L{sym.start_line} - L{sym.end_line}
                     </span>
                   </div>
@@ -314,7 +314,7 @@ export function OutputPanel({
           )}
 
           {activeTab === "diagram" && (
-            <div className="h-full w-full min-h-[190px] bg-white rounded-xl p-2 border border-slate-200">
+            <div className="h-full w-full min-h-[190px] bg-white dark:bg-[#1a1f2e] rounded-xl p-2 border border-slate-200 dark:border-slate-700">
               <MermaidDiagram
                 mermaidSrc={diagramSrc || liveDiagramSrc}
                 title="System Pipeline & Owner Call Graph"

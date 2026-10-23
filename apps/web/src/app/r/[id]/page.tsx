@@ -19,7 +19,7 @@ import { pyodideRunner, RunResult } from "@/lib/pyodideRunner";
 export default function RoomPage() {
   const params = useParams();
   const roomId = params.id as string;
-  const { setRoomId, setSession, currentUser } = useRoomStore();
+  const { setRoomId, setSession, currentUser, theme } = useRoomStore();
 
   const editorRef = useRef<EditorHandle | null>(null);
   const [pyodideStatus, setPyodideStatus] = useState<string>("uninitialized");
@@ -213,7 +213,13 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden p-2.5 sm:p-3.5 flex bg-gradient-to-tr from-[#9bbbee] via-[#d5d7fc] to-[#fcd9e8] font-sans select-none ambient-canvas-breathe text-slate-800">
+    <div
+      className={`h-screen w-screen overflow-hidden p-2.5 sm:p-3 flex font-sans select-none text-slate-800 dark:text-slate-100 ${theme} ${
+        theme === "dark"
+          ? "bg-[#0b0e17]"
+          : "bg-gradient-to-tr from-[#9bbbee]/60 via-[#d5d7fc]/60 to-[#fcd9e8]/60"
+      }`}
+    >
       {/* Modals */}
       <JoinModal roomId={roomId} />
       <RecapModal
@@ -222,27 +228,38 @@ export default function RoomPage() {
         onClose={() => setIsRecapOpen(false)}
       />
 
-      {/* Main Minimalist Floating Card Shell (Like Reference Image) */}
-      <div className="flex-1 rounded-[28px] bg-white/95 backdrop-blur-2xl shadow-[0_20px_60px_-15px_rgba(20,30,60,0.12)] border border-white/80 overflow-hidden flex flex-row relative">
-        
+      {/* Main Minimalist Floating Card Shell */}
+      <div
+        className={`flex-1 rounded-[28px] overflow-hidden flex flex-row relative transition-colors duration-150 ${
+          theme === "dark"
+            ? "bg-[#121622] border border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+            : "bg-white border border-slate-200/80 shadow-[0_20px_60px_-15px_rgba(20,30,60,0.12)]"
+        }`}
+      >
         {/* Left Slim Vertical Icon Rail */}
-        <aside className="w-16 bg-[#f8fafc]/90 border-r border-slate-200/70 flex flex-col items-center py-4 justify-between shrink-0 select-none z-30">
+        <aside
+          className={`w-16 flex flex-col items-center py-4 justify-between shrink-0 select-none z-30 transition-colors ${
+            theme === "dark"
+              ? "bg-[#0e121b] border-r border-slate-800"
+              : "bg-[#f8fafc] border-r border-slate-200/70"
+          }`}
+        >
           {/* Top Brand & Workspace Navigation Icons */}
           <div className="flex flex-col items-center gap-4 w-full">
             {/* Pairio Logo Squircle */}
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-500/25 ring-2 ring-white">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-500/25 ring-2 ring-white/80 dark:ring-slate-700">
               P
             </div>
 
-            <div className="w-8 h-px bg-slate-200" />
+            <div className="w-8 h-px bg-slate-200 dark:bg-slate-800" />
 
             {/* Code View Icon */}
             <button
               onClick={() => setWorkspaceMode("code")}
               className={`p-2.5 rounded-2xl transition ${
                 workspaceMode === "code"
-                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/80 shadow-sm"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-200/80 dark:ring-indigo-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
               title="Code Editor Mode"
             >
@@ -254,8 +271,8 @@ export default function RoomPage() {
               onClick={() => setWorkspaceMode("split")}
               className={`p-2.5 rounded-2xl transition ${
                 workspaceMode === "split"
-                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/80 shadow-sm"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-200/80 dark:ring-indigo-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
               title="Split Code & Browser"
             >
@@ -267,8 +284,8 @@ export default function RoomPage() {
               onClick={() => setWorkspaceMode("cobrowse")}
               className={`p-2.5 rounded-2xl transition ${
                 workspaceMode === "cobrowse"
-                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200/80 shadow-sm"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-200/80 dark:ring-indigo-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
               title="Co-Browse Web Studio"
             >
@@ -281,13 +298,13 @@ export default function RoomPage() {
               disabled={isSplitting}
               className={`p-2.5 rounded-2xl transition relative ${
                 ownership.length > 0
-                  ? "bg-purple-50 text-purple-600 ring-1 ring-purple-200/80"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  ? "bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 ring-1 ring-purple-200/80 dark:ring-purple-800"
+                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
               title="Split Work (AST Ownership Partitioning)"
             >
               {isSplitting ? (
-                <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                <Loader2 className="w-5 h-5 animate-spin text-purple-600 dark:text-purple-400" />
               ) : (
                 <Split className="w-5 h-5" />
               )}
@@ -301,8 +318,8 @@ export default function RoomPage() {
               onClick={() => setIsDrawingMode(!isDrawingMode)}
               className={`p-2.5 rounded-2xl transition ${
                 isDrawingMode
-                  ? "bg-rose-50 text-rose-600 ring-1 ring-rose-300 shadow-sm"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  ? "bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 ring-1 ring-rose-300 dark:ring-rose-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
               title="Toggle Telestrator Drawing on Code"
             >
@@ -323,8 +340,8 @@ export default function RoomPage() {
               onClick={() => setIsTimelineOpen(!isTimelineOpen)}
               className={`p-2.5 rounded-2xl transition ${
                 isTimelineOpen
-                  ? "bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200 shadow-sm"
-                  : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-200 dark:ring-indigo-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
               title="Toggle Pair Master Facilitator"
             >
@@ -334,7 +351,7 @@ export default function RoomPage() {
         </aside>
 
         {/* Central Workspace + Right Drawer */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-[#121622]">
           {/* Top Breadcrumb & Contributor Header */}
           <PresenceBar
             workspaceMode={workspaceMode}
@@ -349,7 +366,7 @@ export default function RoomPage() {
 
           {/* Main Work Area */}
           <div className="flex-1 flex overflow-hidden relative">
-            <main className="flex-1 flex flex-col relative overflow-hidden bg-white">
+            <main className="flex-1 flex flex-col relative overflow-hidden bg-white dark:bg-[#121622]">
               <div className="flex-1 flex overflow-hidden relative">
                 {/* Monaco Editor Container */}
                 <div
@@ -357,7 +374,7 @@ export default function RoomPage() {
                     workspaceMode === "code"
                       ? "w-full"
                       : workspaceMode === "split"
-                      ? "w-1/2 border-r border-slate-200/80"
+                      ? "w-1/2 border-r border-slate-200/80 dark:border-slate-800"
                       : "w-0 hidden"
                   }`}
                 >
@@ -379,7 +396,7 @@ export default function RoomPage() {
                           arr.delete(0, arr.length);
                         }
                       }}
-                      className="absolute bottom-4 right-4 z-40 p-2 bg-white rounded-full shadow-lg border border-slate-200 text-rose-500 hover:bg-rose-50 transition"
+                      className="absolute bottom-4 right-4 z-40 p-2 bg-white dark:bg-[#1a1f2e] rounded-full shadow-lg border border-slate-200 dark:border-slate-700 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition"
                       title="Clear code markings"
                     >
                       <Eraser className="w-4 h-4" />

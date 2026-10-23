@@ -3,39 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --background: #f1f5f9;
+  --background: #f8fafc;
   --foreground: #0f172a;
 }
 
-body {
-  color: var(--foreground);
-  background-color: #cbd5e1;
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(147, 197, 253, 0.65) 0%, transparent 45%),
-    radial-gradient(circle at 85% 15%, rgba(199, 210, 254, 0.7) 0%, transparent 40%),
-    radial-gradient(circle at 50% 85%, rgba(251, 207, 232, 0.6) 0%, transparent 50%),
-    radial-gradient(circle at 90% 80%, rgba(187, 247, 208, 0.4) 0%, transparent 40%);
-  background-attachment: fixed;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+.dark {
+  --background: #0b0e17;
+  --foreground: #f8fafc;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
-}
-
-/* Breathing atmospheric animation */
-@keyframes ambient-breathe {
-  0%, 100% {
-    filter: hue-rotate(0deg) saturate(1);
-    transform: scale(1);
-  }
-  50% {
-    filter: hue-rotate(6deg) saturate(1.08);
-    transform: scale(1.01);
-  }
-}
-
-.ambient-canvas-breathe {
-  animation: ambient-breathe 14s ease-in-out infinite;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
 /* Minimalist ultra-clean custom scrollbars */
@@ -49,24 +35,18 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
+  background: rgba(148, 163, 184, 0.4);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+  background: rgba(148, 163, 184, 0.7);
 }
 
-/* Clean Minimalist Surface Helpers */
-.clean-card {
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.03);
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.5);
 }
 
-.clean-card-subtle {
-  background: rgba(248, 250, 252, 0.85);
-  border: 1px solid rgba(226, 232, 240, 0.7);
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.8);
 }
