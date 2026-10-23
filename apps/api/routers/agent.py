@@ -27,6 +27,7 @@ class AskAgentResponse(BaseModel):
 
 
 @router.post("/ask", response_model=AskAgentResponse)
+@router.post("/chat", response_model=AskAgentResponse)
 async def ask_pair_master(room_id: str, req: AskAgentRequest):
     """
     Submits a prompt or question to the Pair Master AI facilitator.
